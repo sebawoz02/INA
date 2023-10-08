@@ -1,0 +1,168 @@
+//
+// Created by sebastian on 04.05.23.
+//
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+
+long swaps = 0;
+long comps = 0;
+
+// Swaps element i with element j.
+void swap(int* i, int* j){
+    swaps++;
+    int tmp = *i;
+    *i = *j;
+    *j = tmp;
+}
+
+// funkcja sprawdzajaca czy tablica jest posortowana niemalejaco
+bool checkIfSorted(const int A[], int N){
+    for(int i = 1; i<N; i++){
+        if(A[i-1] > A[i]) return false;
+    }
+    return true;
+}
+
+bool checkIfReversed(const int A[], int N){
+    for(int i = 1; i<N; i++){
+        if(A[i-1] < A[i]) return false;
+    }
+    return true;
+}
+
+void sort(int* A, size_t p, size_t q){
+    if(q <= p) return;
+    size_t i = p - 1, j = q + 1;
+    int pivot = A[p];
+    while (1){
+        do{
+            ++i;
+        } while (A[i]< pivot);
+        do {
+            --j;
+        } while (A[j] > pivot);
+        if(i < j){
+            int tmp = A[i];
+            *(&A[i]) = *(&A[j]);
+            *(&A[j]) = tmp;
+        } else break;
+    }
+    sort(A, p, j);
+    sort(A, j+1 , q);
+}
+
+
+
+int hoarePartition(int* A, size_t p, size_t q, int pivot){
+    size_t i = p - 1, j = q + 1;
+    while (1){
+        do{
+            i++;
+            comps++;
+        } while (A[i] < pivot);
+        do{
+            j--;
+            comps++;
+        } while (A[j] > pivot);
+        if(i >= j) return j;
+        swap(&A[i], &A[j]);
+    }
+}
+
+int min(int a, int b){
+    return a > b ? b : a;
+}
+
+
+/* SELECT ------------------------------------------------ */
+
+// Returns pointer to the k-th order (0 - n-1) statistic from array A. The pivot is the median of the medians.
+// 'groupSize' is the size of the groups from which the medians will be selected.
+int selectM(int* A, size_t p, size_t q, size_t k, signed char groupSize) {
+    if(p == q)  return A[p];
+    size_t numOfMedians = (q-p + 1) % groupSize == 0 ? (q-p + 1)/groupSize : (q-p + 1)/groupSize + 1;
+    // compute medians and move them to the left
+    int* medians = malloc(numOfMedians* sizeof(int));
+    size_t j = 0;
+    for (size_t i = p; i <= q; i+=groupSize) {
+        size_t subR = min(i + groupSize - 1, q);
+        sort(A, i, subR);   // sort in O(1)
+        medians[j] = A[(i+subR)/2];
+        ++j;
+    }
+    // median of medians
+    int pivot = selectM(medians, 0,  numOfMedians - 1, (numOfMedians - 1)/2, groupSize);
+    size_t pivotIdx = hoarePartition(A, p , q, pivot);
+    free(medians);
+    if(k  == pivotIdx) return A[pivotIdx];
+    if(k  < pivotIdx) return selectM(A, p , pivotIdx , k , groupSize);
+    return selectM(A, pivotIdx + 1, q, k, groupSize);
+}
+
+
+size_t partition(int* A, size_t p, size_t q, bool withSelect){
+    int pivot = withSelect ? selectM(A, p , q, q/2 - p + 1, 5) : A[p];
+    size_t i = p-1, j = q+1;
+    while(true) {
+        do{ i++;
+            comps++;} while (A[i] < pivot);
+        do{ j--;
+            comps++;} while (A[j] > pivot);
+        if(i >= j) return j;
+        swap(&A[i], &A[j]);
+    }
+}
+
+void quickSort(int* A, size_t p, size_t q, bool withSelect){
+    if(p >= q) return;
+    size_t r = partition(A, p, q, withSelect);
+    quickSort(A, p , r, false);
+    quickSort(A, r+1, q, false);
+}
+
+void QSwithSELECT(int* A, size_t p, size_t q){
+    bool withselect = (checkIfSorted(A, q - p + 1) || checkIfReversed(A , q - p + 1));
+    quickSort(A, p , q, withselect);
+}
+
+
+
+
+int main(void){
+    size_t n;
+    FILE *data = fopen("tmpdata.txt", "r");
+    if(data == NULL){
+        printf("Nie wygenerowano danych.\n");
+        return -1;
+    }
+    srand(time(NULL));
+    fscanf(data,"%zu", &n);
+    int* A = malloc(sizeof(int[n]));
+    int* copy = malloc(sizeof (int [n]));
+    for (int i = 0; i < n; ++i) {
+        int val;
+        fscanf(data,"%d", &val);
+        A[i] = val;
+        copy[i] = val;
+    }
+    fclose(data);
+
+    remove("tmpdata.txt");    // Remove temporary file
+    sort(A, 0, n-1);
+    sort(copy, 0, n-1);
+
+    clock_t start = clock();
+    QSwithSELECT(A, 0, n-1);
+    printf(" With select - %fs \nComps = %ld -  Swaps = %ld \n", (double) (clock() -start)/ CLOCKS_PER_SEC, comps, swaps);
+    comps = 0;
+    swaps = 0;
+    start = clock();
+    quickSort(copy, 0, n-1, false);
+    printf(" Without select - %fs \nComps = %ld -  Swaps = %ld \n", (double) (clock() -start)/ CLOCKS_PER_SEC, comps, swaps);
+
+
+    free(A);
+    free(copy);
+}
