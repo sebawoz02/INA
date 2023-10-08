@@ -24,8 +24,9 @@ static long double calculate_entropy(const uint32_t* freq_dict, const size_t no_
         if(freq_dict[i] == 0)
             continue;
         const long double p = (long double)freq_dict[i]/no_sym;     // p(freq_dict[i])
-        ent += p * -log2l(p);
+        ent += p * log2l(p);
     }
+    ent = -ent;
     return ent;
 }
 
@@ -48,11 +49,11 @@ static long double calculate_cond_entropy(uint32_t** cond_freq_dict,
             if(cond_freq_dict[i][j] == 0)
                 continue;
             const long double p = (const long double)cond_freq_dict[i][j]/freq;
-            sum += p * -log2l(p);
+            sum += p * log2l(p);
         }
         ent += freq/no_sym * sum;
     }
-
+    ent = -ent;
     return ent;
 }
 
@@ -72,14 +73,13 @@ void scan_file(const char* file_name)
         uint32_t* ptr = calloc(NO_POSSIBLE_SYMBOLS, sizeof(uint32_t));
         cond_freq_dict[i] = ptr;
     }
-    size_t no_symbols = 0;      // Number of different 8-bit symbols found in binary file
+    size_t no_symbols = 0;      // Number of 8-bit symbols found in binary file
     int16_t curr_symbol;
     int16_t prev_symbol = 0;
 
     while((curr_symbol = fgetc(fptr)) != EOF)
     {
-        if(freq_dict[curr_symbol] == 0)
-            no_symbols++;
+        no_symbols++;
         freq_dict[curr_symbol]++;
         cond_freq_dict[prev_symbol][curr_symbol]++;
         prev_symbol = curr_symbol;
