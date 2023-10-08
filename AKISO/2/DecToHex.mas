@@ -1,0 +1,84 @@
+Input
+Store number
+Load number
+Subt sixteen
+Skipcond 000		/jezeli podana liczba jest mniejsza od 16 to program przeskakuje na zakonczenie petli
+Jump div_loop
+Load number
+Store div_result
+Jump loop_end
+
+
+div_loop, 		Load number
+			Subt sixteen
+			Skipcond 000
+                    	Jump repeat
+                    					/koniec dzielenia
+                    	Load number
+			StoreI cur_index	/wstawienie otrzymanej reszty do tablicy pod index na ktory wskazuje wskaznik
+			Load array_len
+			Add one	
+                    	Store array_len
+                    	Load cur_index
+			Add one 			/przesuniecie wskaznika po wstawianiu reszty i zwiekszeniu rozmiaru tablicy 
+			Store cur_index
+                   	Load div_result
+			Store number
+                    	Add one
+			Subt sixteen		/ jezeli wartosc w AC bedzie mniejsza od zera to dzielenie jest konczone
+                    	Skipcond 800
+			Jump loop_end
+                    	Clear 
+                    	Store div_result	/zerowanie wyniku do ponownego dzielenia
+			Jump div_loop		/dzielenie jest powtarzane aby uzyskac kolejna reszte
+
+
+                    
+                    
+repeat,			Store number
+			Load div_result
+			Add one	
+                    	Store div_result
+			Jump div_loop
+                    
+loop_end,		Load div_result
+			StoreI cur_index	/ostatnia reszta to wynik ostatniego dzielenia mniejszy od 16
+			Load array_len
+			Add one
+                    	Store array_len		
+					
+array_len_check,	Load array_len
+                    	Skipcond 400		/jezeli rozmiar tablicy =0 to program sie konczy
+                    	Jump print
+			Halt
+                    
+print,			Load array_len
+			Subt one
+                    	Store array_len
+			LoadI cur_index
+			Subt ten			/sprawdzenie czy wartosc jest mniejsza od 10
+			Skipcond 000
+                    	Add ascii_let
+			Add ascii_num
+			Add ten
+                    	Output
+			Load cur_index
+			Subt one 			/poruszanie sie po tablicy od ostatniego indexu do zerowego
+                    	Store cur_index
+			Jump array_len_check
+	
+
+
+
+div_result,	DEC 0	/wynik dzielenia
+number, 	DEC 0	/liczba do wypisania w HEX
+
+sixteen,  	DEC 16	/liczby pomocnicze
+one, 		DEC 1
+ten,		DEC 10
+
+cur_index,	HEX 50 	/wskaznik
+array_len,	HEX	0	/dlugosc tabeli
+
+ascii_num,	DEC 48	/wartosc 0 w tablicy ASCII
+ascii_let, 	DEC 7	/odleglosc miedzy 0 a A w tablicy ASCII

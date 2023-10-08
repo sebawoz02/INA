@@ -1,0 +1,23 @@
+data;
+
+set ZMIANY := z1 z2 z3;
+set DZIELNICE := p1 p2 p3;
+param min_radiowozy: 	z1 	z2 	z3 :=
+		p1	2	4	3	
+		p2	3	6	5
+		p3	5	7	6	;
+
+param max_radiowozy: 	z1 	z2 	z3 :=
+		p1	3	7	5
+		p2	5	7	10
+		p3	8	12	10	;
+
+param rad_zmiany := 	z1	10
+			z2	20
+			z3	18	;
+			
+param rad_dzielnice := 	p1	10
+			p2	14
+			p3	13	;
+			
+end;

@@ -1,0 +1,58 @@
+Clear 
+Store result
+Store multiply_y
+Store rest
+Input
+Store X
+Input
+Store Y
+
+Load Y //check if Y=0
+Skipcond 800
+Jump halt
+Load X //check if X=0
+Skipcond 800
+Jump halt
+
+loop,		    Load multiply_y
+			      Add Y
+            Store multiply_y
+			      Subt X
+			      Skipcond 000
+            Jump end_loop
+            Load result
+			      Add one
+            Store result
+			      Jump loop
+
+
+end_loop,	  Load multiply_y
+			      Subt Y
+            Store multiply_y
+			      Load X
+            Subt multiply_y
+			      Store rest
+            Subt Y
+            Skipcond 400
+            Jump halt
+            Clear
+			       Store rest
+            Load result
+			      Add one
+            Store result
+
+			
+                       			        
+halt,	  Load result
+		    Output
+        Load rest
+		    Output
+		    Halt
+
+
+multiply_y, DEC 0
+result, DEC 0
+rest, DEC 0
+X, DEC 0
+Y, DEC 0
+one, DEC 1
