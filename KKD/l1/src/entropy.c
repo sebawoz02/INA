@@ -24,9 +24,8 @@ static long double calculate_entropy(const uint32_t* freq_dict, const size_t no_
         if(freq_dict[i] == 0)
             continue;
         const long double p = (long double)freq_dict[i]/no_sym;     // p(freq_dict[i])
-        ent += p * log2l(p);
+        ent -= p * log2l(p);
     }
-    ent = -ent;
     return ent;
 }
 
@@ -49,11 +48,10 @@ static long double calculate_cond_entropy(uint32_t** cond_freq_dict,
             if(cond_freq_dict[i][j] == 0)
                 continue;
             const long double p = (const long double)cond_freq_dict[i][j]/freq;
-            sum += p * log2l(p);
+            sum -= p * log2l(p);
         }
         ent += freq/no_sym * sum;
     }
-    ent = -ent;
     return ent;
 }
 
@@ -75,7 +73,7 @@ void scan_file(const char* file_name)
     }
     size_t no_symbols = 0;      // Number of 8-bit symbols found in binary file
     int16_t curr_symbol;
-    int16_t prev_symbol = 0;
+    int16_t prev_symbol = 0;    // 0b00000000
 
     while((curr_symbol = fgetc(fptr)) != EOF)
     {
@@ -89,6 +87,7 @@ void scan_file(const char* file_name)
     const long double cond_entropy = calculate_cond_entropy(cond_freq_dict, freq_dict, no_symbols);
     printf("Entropy: %Lf\n", entropy);
     printf("Conditional entropy: %Lf\n", cond_entropy);
+    printf("Difference: %Lf\n", fabsl(entropy - cond_entropy));
 
     // Free up resources
     fclose(fptr);
