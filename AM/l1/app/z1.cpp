@@ -1,5 +1,5 @@
 #include <iostream>
-#include "DataParser.h"
+#include "../inc/DataParser.h"
 
 using namespace std;
 
