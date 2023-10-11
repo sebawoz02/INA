@@ -42,12 +42,13 @@ Graph *DataParser::parse() const
             // Start reading data
             size_t id;
             uint16_t x, y;
-            while (std::getline(inputFile, line) && line != "EOF") {
+            while (std::getline(inputFile, line)) {
                 std::istringstream ss(line);
-                ss >> id;
-                ss >> x;
-                ss >> y;
-                g->addNode(id - 1, x, y);
+                if(ss >> id) {
+                    ss >> x;
+                    ss >> y;
+                    g->addNode(id - 1, x, y);
+                }
             }
         }
     }
