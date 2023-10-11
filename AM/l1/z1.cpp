@@ -1,13 +1,24 @@
 #include <iostream>
-#include "Graph.h"
+#include "DataParser.h"
+
+using namespace std;
 
 int main(int argc, char* argv[]) {
-    (void) argv;
-    (void) argc;
-    std::cout << "Hello, World!" << std::endl;
+    if(argc < 2)
+    {
+        cerr << "Please provide file_name as parameter" << endl;
+        return 1;
+    }
+    char* file_name = argv[1];
+    auto* dp = new DataParser(file_name);
+    auto* g = dp->parse();
 
-    auto* g = new Graph(10);
+    if(g != nullptr) {
+        g->compute_matrix();
+        delete g;
+    } else
+        return 1;
 
-    delete g;
+    delete dp;
     return 0;
 }

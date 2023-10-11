@@ -5,19 +5,19 @@
 #ifndef L1_GRAPH_H
 #define L1_GRAPH_H
 
-#include <list>
-#include <cstdint>
-#include "Edge.h"
-
-using namespace std;
+#include <cstdlib>
+#include <vector>
+#include "Node.h"
 
 class Graph {
 public:
-    list<Edge*>* adjList;
-    size_t no_verticies;
+    size_t no_nodes;
+    std::vector<Node*> nodes_list;
+    uint32_t** dist_matrix;
 
-    explicit Graph(size_t no_verticies);
-    void addEdge(uint16_t src, uint16_t dest, uint16_t weight);
+    explicit Graph(size_t no_nodes);
+    void addNode(size_t id, uint16_t x, uint16_t y);
+    void compute_matrix();
     ~Graph();
 };
 
