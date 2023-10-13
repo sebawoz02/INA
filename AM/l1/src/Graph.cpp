@@ -38,8 +38,8 @@ Graph::~Graph() {
     delete[] this->dist_matrix;
 }
 
-void Graph::addNode(size_t id, uint16_t x, uint16_t y){
-    this->nodes_list.push_back(new Node(id, x, y));
+void Graph::addNode(uint16_t x, uint16_t y){
+    this->nodes_list.push_back(new Node(x, y));
 }
 
 void Graph::compute_matrix(){

@@ -16,7 +16,7 @@ public:
     uint32_t** dist_matrix;
 
     explicit Graph(size_t no_nodes);
-    void addNode(size_t id, uint16_t x, uint16_t y);
+    void addNode(uint16_t x, uint16_t y);
     void compute_matrix();
     ~Graph();
 };

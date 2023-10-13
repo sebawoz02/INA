@@ -47,7 +47,7 @@ Graph *DataParser::parse() const
                 if(ss >> id) {
                     ss >> x;
                     ss >> y;
-                    g->addNode(id - 1, x, y);
+                    g->addNode(x, y);
                 }
             }
         }

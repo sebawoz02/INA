@@ -1,5 +1,6 @@
 #include <iostream>
-#include "../inc/DataParser.h"
+#include <DataParser.h>
+#include <primAlgorithm.h>
 
 using namespace std;
 
@@ -10,15 +11,22 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     char* file_name = argv[1];
+
+    // Pre-processing
     auto* dp = new DataParser(file_name);
-    auto* g = dp->parse();
-
-    if(g != nullptr) {
-        g->compute_matrix();
-        delete g;
-    } else
-        return 1;
-
+    Graph* g = dp->parse();
     delete dp;
+    if(g == nullptr) {
+        return 1;
+    }
+
+    g->compute_matrix();
+
+    // Prim's MST
+    vector<Node*> mst = primFindMST(g);
+
+    // Visualize
+
+    delete g;
     return 0;
 }

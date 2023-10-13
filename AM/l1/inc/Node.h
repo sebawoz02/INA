@@ -9,11 +9,10 @@
 
 class Node {
 public:
-    std::size_t id;
     uint16_t x;
     uint16_t y;
 
-    Node(std::size_t id, uint16_t x, uint16_t y);
+    Node(uint16_t x, uint16_t y);
     ~Node();
 };
 
