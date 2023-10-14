@@ -12,4 +12,3 @@ set(SOURCES src/DataParser.cpp
 add_executable(main.out app/main.cpp ${SOURCES})
 target_link_libraries(main.out PRIVATE ${CMAKE_SOURCE_DIR}/libs/timer/timer.a)
 target_include_directories(main.out PRIVATE inc ${CMAKE_SOURCE_DIR}/libs/timer/inc)
-

@@ -12,12 +12,12 @@ public:
     std::size_t id;
     uint16_t x;
     uint16_t y;
+    uint32_t cost;
     std::vector<TreeNode*> children;
 
-    TreeNode(std::size_t id ,uint16_t x, uint16_t y, TreeNode* parent);
+    TreeNode(std::size_t id ,uint16_t x, uint16_t y, uint32_t cost,TreeNode* parent);
 
     void addEdge(TreeNode* child);
-    void removeEdge(TreeNode* child);
     void deleteTree();
 };
 #endif //L1_TREENODE_H

@@ -8,8 +8,8 @@ private:
     std::vector<TreeNode*>  nodes;
 public:
     explicit Visualizer(std::vector<TreeNode*>  node);
-    void visualize_mst();
-    void visualize_tsp();
+    uint64_t visualize_mst();
+    uint64_t visualize_tsp(uint32_t** dist_matrix);
 };
 
 #endif //L1_VISUALIZER_H

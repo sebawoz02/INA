@@ -2,23 +2,16 @@
 #include <algorithm>
 #include <stack>
 
-TreeNode::TreeNode(const size_t id, const uint16_t x, const uint16_t y, TreeNode* parent) {
+TreeNode::TreeNode(const size_t id, const uint16_t x, const uint16_t y, const uint32_t cost,TreeNode* parent) {
     this->id = id;
     this->x = x;
     this->y = y;
+    this->cost = cost;
     this->parent = parent;
 }
 
 void TreeNode::addEdge(TreeNode *child) {
     this->children.push_back(child);
-}
-
-void TreeNode::removeEdge(TreeNode* child)
-{
-    this->children.erase(std::remove_if(children.begin(), children.end(),
-                                  [child](TreeNode* ptr) {
-                                      return ptr == child;
-                                  }), children.end());
 }
 
 void TreeNode::deleteTree() {

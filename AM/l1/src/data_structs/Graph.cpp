@@ -1,11 +1,10 @@
 //
 // Created by sebastian on 10/11/23.
 //
+#define nint(x)((uint32_t) (x + 0.5))
 
 #include <cmath>
 #include "data_structs/Graph.h"
-
-#define nint(x)((uint32_t) x+0.5)
 
 /*
  * Function takes two nodes and calculates Euclidean distance between
@@ -13,9 +12,9 @@
  * */
 uint32_t calculate_distance(Node* n1, Node* n2)
 {
-    uint32_t xd = n1->x - n2->x;
-    uint32_t yd = n1->y - n2->y;
-    uint32_t dij = nint( sqrt(xd*xd + yd*yd) );
+    double xd = n1->x - n2->x;
+    double yd = n1->y - n2->y;
+    uint32_t dij = nint(sqrt(xd*xd + yd*yd));
     return dij;
 }
 
