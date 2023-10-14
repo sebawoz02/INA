@@ -2,7 +2,7 @@
 // Created by sebastian on 10/11/23.
 //
 
-#include "Node.h"
+#include "data_structs/Node.h"
 
 Node::Node(uint16_t x, uint16_t y) {
     this->x = x;

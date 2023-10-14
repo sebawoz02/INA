@@ -2,7 +2,6 @@
 #include <bits/stdc++.h>
 
 static size_t minKeyId(const uint32_t minKey[], const bool visited[], size_t no_nodes);
-static std::vector<Node*> parseToVector(const size_t mst[], const Graph* graph, const bool visited[]);
 
 // Returns the id of the Node to which the shortest path leads
 static size_t minKeyId(const uint32_t minKeys[], const bool visited[], size_t no_nodes)
@@ -18,33 +17,12 @@ static size_t minKeyId(const uint32_t minKeys[], const bool visited[], size_t no
     return min_index;
 }
 
-static std::vector<Node*> parseToVector(const size_t mst[], const Graph* const graph, const bool visited[])
-{
-    const size_t no_nodes = graph->no_nodes;
-    std::vector<Node*> list_mst;
-    list_mst.reserve(no_nodes);
-    for(size_t i = 1; i < no_nodes; i++)
-    {
-        size_t id = mst[i];
-        list_mst.push_back(graph->nodes_list[id]);
-    }
-    // Find root
-    for(size_t i = 0; i < no_nodes; i++)
-    {
-        if(!visited[i])
-        {
-            list_mst.push_back(graph->nodes_list[i]);
-            break;
-        }
-    }
-    return list_mst;
-}
-
-std::vector<Node*> primFindMST(const Graph* const graph) {
+std::vector<TreeNode*> primFindMST(const Graph* const graph) {
     // V
     const size_t no_nodes = graph->no_nodes;
     // Minimum spanning tree
-    size_t mst[no_nodes];
+    std::vector<TreeNode*> mst;
+    mst.reserve(no_nodes);
     // Nodes already in MST
     bool visited[no_nodes];
     // Used to pick min value for all Nodes in MST
@@ -52,8 +30,10 @@ std::vector<Node*> primFindMST(const Graph* const graph) {
     for(size_t i = 0; i < no_nodes; i++) {
         minKeys[i] = UINT32_MAX;
         visited[i] = false;
+        mst.push_back(nullptr);
     }
     minKeys[0] = 0;
+    mst[0] = new TreeNode(0, graph->nodes_list[0]->x, graph->nodes_list[0]->y, nullptr);
 
     for(size_t i = 0; i < no_nodes - 1; i++)
     {
@@ -64,11 +44,18 @@ std::vector<Node*> primFindMST(const Graph* const graph) {
         {
             if(graph->dist_matrix[id][v] != 0 && !visited[v] && graph->dist_matrix[id][v] < minKeys[v])
             {
-                mst[v] = id;
+                if(mst[v] != nullptr) {
+                    if(mst[v]->parent != nullptr)
+                        mst[v]->parent->removeEdge(mst[v]);
+                    delete mst[v];
+                }
+                mst[v] = new TreeNode(v ,graph->nodes_list[v]->x, graph->nodes_list[v]->y, mst[id]);
+                mst[v]->parent->addEdge(mst[v]);
+
                 minKeys[v] = graph->dist_matrix[id][v];
             }
         }
     }
 
-    return parseToVector(mst, graph, visited);
+    return mst;
 }

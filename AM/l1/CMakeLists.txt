@@ -4,12 +4,10 @@ project(l1)
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES src/DataParser.cpp
-            src/Node.cpp
+        src/data_structs/Node.cpp
         src/primAlgorithm.cpp
-            src/Graph.cpp)
+        src/data_structs/Graph.cpp src/data_structs/TreeNode.cpp src/Visualizer.cpp inc/Visualizer.h
+        )
 
-add_executable(z1 app/z1.cpp ${SOURCES})
-# add_executable(z2 app/z2.cpp ${SOURCES})
-
-target_include_directories(z1 PRIVATE inc)
-# target_include_directories(z2 PRIVATE inc)
+add_executable(main.out app/main.cpp ${SOURCES})
+target_include_directories(main.out PRIVATE inc)

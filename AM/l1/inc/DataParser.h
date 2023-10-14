@@ -5,7 +5,7 @@
 #ifndef L1_DATAPARSER_H
 #define L1_DATAPARSER_H
 
-#include "Graph.h"
+#include "data_structs/Graph.h"
 
 class DataParser {
 public:

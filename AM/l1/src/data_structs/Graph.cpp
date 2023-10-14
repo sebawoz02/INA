@@ -3,7 +3,7 @@
 //
 
 #include <cmath>
-#include "Graph.h"
+#include "data_structs/Graph.h"
 
 #define nint(x)((uint32_t) x+0.5)
 
@@ -26,6 +26,7 @@ Graph::Graph(size_t no_nodes) {
     {
         this->dist_matrix[i] = new uint32_t[no_nodes];
     }
+    this->nodes_list.reserve(no_nodes);
 }
 
 Graph::~Graph() {
