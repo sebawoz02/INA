@@ -63,7 +63,6 @@ uint64_t Visualizer::visualize_tsp(uint32_t** dist_matrix) {
     TreeNode* prev = nullptr;
     while ( !stk.empty() ){
         auto* node = stk.top();
-        std::cout << node->id + 1 << " ";
         stk.pop();
         if(prev != nullptr)
         {
