@@ -2,11 +2,13 @@
 Informatyka algorytmiczna PWr 2021-2024
 
 Listy laboratoryjne oddawane na wybrane kursy:
-- Algorytmy i struktury danych
-- Architektura komputerów i systemy operacyjne
-- Algorytmy metaheurystyczne
-- Algorytmy optymalizacji dyskretnej
-- Bazy Danych i systemy informacyjne
-- Języki formalne i techniki translacji
-- Kodowanie i kompresja danych
-- Metody probabilistyczne i statystyka
+- AISD - Algorytmy i struktury danych
+- AKISO - Architektura komputerów i systemy operacyjne
+- AM - Algorytmy metaheurystyczne
+- AOD - Algorytmy optymalizacji dyskretnej
+- BDSI - Bazy Danych i systemy informacyjne
+- JFTT - Języki formalne i techniki translacji
+- KKD - Kodowanie i kompresja danych
+- MPIS - Metody probabilistyczne i statystyka
+- ON - Obliczenia naukowe
+- PW - Programowanie współbieżne 
