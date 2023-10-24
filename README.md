@@ -13,3 +13,10 @@ Informatyka algorytmiczna PWr 2021-2024
 |MPIS - Metody probabilistyczne i statystyka| 5.0|
 |ON - Obliczenia naukowe| In progress|
 |PW - Programowanie współbieżne | In progress|
+|----pozostałe----|n/a|
+|Aplikacje mobilne| 4.0|
+|Technologie programowania| 5.5 |
+|Technologie sieciowe| 5.0|
+|Wprowadzenie do sztucznej inteligencji| 5.5|
+|Wstęp do informatyki i programowania| 5.0 |
+
