@@ -18,7 +18,7 @@ var wg = &sync.WaitGroup{}
 
 func main() {
 	if len(os.Args) < 4 {
-		fmt.Println("Usage: go run program.go m n k")
+		fmt.Println("Usage: go run z1.go m n k")
 		return
 	}
 
