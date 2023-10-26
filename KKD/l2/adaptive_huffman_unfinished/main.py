@@ -1,6 +1,5 @@
 import math
-from encoder import Encoder
-from decoder import Decoder
+from KKD.l2.adaptive_huffman_unfinished.encoder import Encoder
 import sys
 
 

@@ -1,5 +1,5 @@
 import math
-from dynamic_huffman_tree import DynamicHuffmanTree
+from KKD.l2.adaptive_huffman_unfinished.dynamic_huffman_tree import DynamicHuffmanTree
 
 
 def _node_code(node) -> str:
