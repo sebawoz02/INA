@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define NO_SYMBOLS 257  // 0-255 ascii + end symbol
+#define NO_SYMBOLS 256  // 0-255 ascii
 
 /** FUNCTION DECLARATIONS **/
 
