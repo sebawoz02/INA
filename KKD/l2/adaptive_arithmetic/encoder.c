@@ -20,7 +20,7 @@ int parse_arguments(int argc, char* argv[], FILE** input, FILE** output)
 {
     if(argc < 3)
     {
-        printf("Usage: ./encode <input_file> <output_file>\n");
+        printf("Usage: ./encoder.out <input_file> <output_file>\n");
         return 1;
     }
     const char* input_name = argv[1];
@@ -153,8 +153,8 @@ int main(int argc, char* argv[]) {
         }
     }
     // Flush buffer
-    //while (bit_buff_idx != 7)
-    //    insert_to_buffer(&bit_buffer, &bit_buff_idx, &output_size, 0, output);
+    while (bit_buff_idx != 7)
+        insert_to_buffer(&bit_buffer, &bit_buff_idx, &output_size, 0, output);
 
 
     // Cleanup
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
     // ------------- PRINT STATS ----------------
 
     double entropy = 0.0;
-    for(size_t i = 0; i < NO_SYMBOLS - 1; i++)
+    for(size_t i = 0; i < NO_SYMBOLS; i++)
     {
         if(occur[i] - 1 > 0)
         {
