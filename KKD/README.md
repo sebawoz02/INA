@@ -4,6 +4,6 @@
 - entropy
 - conditional entropy
 
-# l2 - Dynamic Huffman coding
+# l2 - Adaptive arithmetic coding with scaling
 - encode algorithm
 - decode algorithm
