@@ -1,0 +1,11 @@
+Wynik: 20
+Wynik: -13
+Wynik: -3
+Wynik: 4
+Wynik: 512
+Za mala liczba argumentow
+Za mala liczba operatorow
+Nieprawidłowy symbol: "."
+Dzielenie przez zero!
+Dzielenie przez zero!
+Dzielenie przez zero!
