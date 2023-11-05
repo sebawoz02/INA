@@ -5,7 +5,7 @@
 %}
 
 %s LINE
-%s WORDS
+%s WORD
 %s SPACE
 
 %%
@@ -14,24 +14,24 @@
 
 <LINE>[ \t]+     	;
 <LINE>\n            ;
-<LINE>[^ \t\n]+     {	// 
+<LINE>[^ \t\n]+     {	
                       	if (no_lines > 0)
                         	printf("\n");
                       	ECHO;
                       	no_lines++;
                       	no_words++;
-                      	BEGIN(WORDS);
+                      	BEGIN(WORD);
                     }
 
 
-<WORDS>[ \t]+ 			BEGIN(SPACE);
-<WORDS>\n            	BEGIN(LINE);
+<WORD>[ \t]+ 			BEGIN(SPACE);
+<WORD>\n            	BEGIN(LINE);
 
 <SPACE>[^ \t\n]+       	{
                 	  		printf(" ");
                       		ECHO;
                       		no_words++;
-                      		BEGIN(WORDS);
+                      		BEGIN(WORD);
                     	}
 <SPACE>\n           	BEGIN(LINE);
 %%
