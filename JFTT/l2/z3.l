@@ -7,43 +7,61 @@ bool keep_doc = false;
 
 %}
 
-%s string
-%s include
+%x STRING
+%x SINGLE_COM
+%x MULTI_COM
+%x SINGLE_DOC
+%x MULTI_DOC
 
-%s regular_s
-%s doc_s
-%s regular_m
-%s doc_m
+n               \\\n
+
+single_doc      \/{n}*\/{n}*[\/\!]
+single_com      \/{n}*\/
+multi_doc_a     \/{n}*\*{n}*[\*\!]
+multi_doc_b     \*{n}*\/
+mulit_com_a     \/{n}*\*
+mutli_com_b     \*{n}*\/
+
+inc \#include[[:blank:]]["\<].*[">]
 
 %%
+BEGIN(INITIAL);
+
 <INITIAL>{
-    \"              {printf("%s", yytext); BEGIN(string);}
-    "#include <"    {printf("%s", yytext); BEGIN(include);}
-    ("///")|("//!") {if (keep_doc) {printf("%s", yytext);} BEGIN(doc_s);}
-    ("/**")|("/*!") {if (keep_doc) {printf("%s", yytext);} BEGIN(doc_m);}
-    "//"            {BEGIN(regular_s);}
-    "/*"            {BEGIN(regular_m);}
+    {inc}           {ECHO;}
+    \"              {ECHO; BEGIN(STRING);}
+    {single_doc}    {if(keep_doc)ECHO; BEGIN(SINGLE_DOC);}
+    {multi_doc_a}   {if(keep_doc)ECHO; BEGIN(MULTI_DOC);}
+    {single_com}    BEGIN(SINGLE_COM);
+    {mulit_com_a}   BEGIN(MULTI_COM);
 }
 
-<string>\"     {printf("%s", yytext); BEGIN(INITIAL);}
-<string>.      {printf("%s", yytext);}
+<STRING>{
+    \"              {ECHO; BEGIN(INITIAL);}
+    .               {ECHO;}
+}
 
-<include>>      {printf("%s", yytext); BEGIN(INITIAL);}
-<include>.      {printf("%s", yytext);}
+<SINGLE_COM>{
+    {n}             ;
+    \n              BEGIN(INITIAL);
+    .               ;
+}
 
-<regular_s>\\{2}   ;
-<regular_s>.*\\    ;
-<regular_s>.*      {BEGIN(INITIAL);}
+<MULTI_COM>{
+    {mutli_com_b}   BEGIN(INITIAL);
+    .               ;
+}
 
-<doc_s>\\{2}   {if (keep_doc) {printf("%s", yytext);}}
-<doc_s>.*\\    {if (keep_doc) {printf("%s", yytext);}}
-<doc_s>.*      {if (keep_doc) {printf("%s", yytext);} BEGIN(INITIAL);}
+<SINGLE_DOC>{
+    {n}             {if(keep_doc)ECHO;}
+    \n              {if(keep_doc)ECHO; BEGIN(INITIAL);}
+    .               {if(keep_doc)ECHO;}
+}
 
-<regular_m>.*"*/" {BEGIN(INITIAL);}
-<regular_m>.    ;
-
-<doc_m>.*"*/" {if (keep_doc) {printf("%s", yytext);} BEGIN(INITIAL);}
-<doc_m>.      {if (keep_doc) {printf("%s", yytext);}}
+<MULTI_DOC>{
+    {multi_doc_b}   {if(keep_doc)ECHO; BEGIN(INITIAL);}
+    .               {if(keep_doc)ECHO;}
+}
 
 %%
 
