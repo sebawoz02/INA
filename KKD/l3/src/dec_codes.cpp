@@ -49,7 +49,7 @@ static int64_t read_bits(uint8_t& bit_buffer, std::size_t& curr_bit,
     if(tmp == EOF) {
       return -1;
     }
-    bit_buffer = (unsigned char)(tmp);
+    bit_buffer = static_cast<int8_t>(tmp);
     curr_bit = 0;
     if(1 - count >= 8) {
       solution = solution << 8;
