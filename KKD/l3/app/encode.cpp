@@ -2,7 +2,7 @@
 #include <cstring>
 #include <enc_codes.hpp>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 using namespace std;
 
@@ -11,7 +11,7 @@ void encode(FILE* in_file, FILE* out_file,
                                   uint32_t*),
             const uint8_t flush_bit)
 {
-  map<string, size_t> dict;
+  unordered_map<string, size_t> dict;
   size_t dict_len = 256;
   uint32_t out_occur[256];
   for(size_t i = 0; i <= 255; i++) {

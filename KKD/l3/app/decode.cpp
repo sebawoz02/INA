@@ -1,14 +1,14 @@
 #include <cstring>
 #include <dec_codes.hpp>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 using namespace std;
 
 int decode(FILE* in_file, FILE* out_file,
            int64_t (*decode_number)(uint8_t&, std::size_t&, FILE*))
 {
-  map<size_t, string> dict;
+  unordered_map<size_t, string> dict;
   uint8_t bit_buffer = 0;
   size_t current_bit = 0;
 
