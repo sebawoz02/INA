@@ -54,15 +54,16 @@ std::vector<TreeNode*> primFindMST(const Graph* const graph)
       }
     }
   }
-
+  uint64_t tree_cost = 0;
   // Set parents of TreeNodes in vector
   for(size_t i = 1; i < no_nodes; i++) {
     mst[i]->parent = mst[parents[i]];
     mst[i]->cost = graph->dist_matrix[parents[i]][i];
+    tree_cost += mst[i]->cost;
     mst[i]->parent->addEdge(mst[i]);
     // Add parents to children for task purpose
     mst[i]->addEdge(mst[i]->parent);
   }
-
+  std::cout << "MST: " << tree_cost << std::endl;
   return mst;
 }
