@@ -19,7 +19,7 @@ static size_t minKeyId(const uint32_t minKeys[], const bool visited[],
   return min_index;
 }
 
-std::vector<TreeNode*> primFindMST(const Graph* const graph)
+std::vector<TreeNode*> prim_find_MST(const Graph* const graph)
 {
   // V
   const size_t no_nodes = graph->no_nodes;
@@ -30,26 +30,26 @@ std::vector<TreeNode*> primFindMST(const Graph* const graph)
   // Nodes already in MST
   bool visited[no_nodes];
   // Used to pick min value for all Nodes in MST
-  uint32_t minKeys[no_nodes];
+  uint32_t min_keys[no_nodes];
 
   mst.reserve(no_nodes);
   for(size_t i = 0; i < no_nodes; i++) {
-    minKeys[i] = UINT32_MAX;
+      min_keys[i] = UINT32_MAX;
     visited[i] = false;
     mst.push_back(new TreeNode(i, graph->nodes_list[i]->x,
                                graph->nodes_list[i]->y, 0, nullptr));
   }
-  minKeys[0] = 0;
+    min_keys[0] = 0;
   parents[0] = -1;
 
   for(size_t i = 0; i < no_nodes - 1; i++) {
-    const size_t id = minKeyId(minKeys, visited, no_nodes);
+    const size_t id = minKeyId(min_keys, visited, no_nodes);
 
     visited[id] = true;
     for(size_t v = 0; v < no_nodes; v++) {
       if(graph->dist_matrix[id][v] != 0 && !visited[v] &&
-         graph->dist_matrix[id][v] < minKeys[v]) {
-        minKeys[v] = graph->dist_matrix[id][v];
+         graph->dist_matrix[id][v] < min_keys[v]) {
+          min_keys[v] = graph->dist_matrix[id][v];
         parents[v] = (int64_t)id;
       }
     }

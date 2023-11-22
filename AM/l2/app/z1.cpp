@@ -3,6 +3,7 @@
 #include <random>
 #include <stack>
 #include <vector>
+#include <assert.h>
 
 #include <local_search.h>
 #include <DataParser.h>
@@ -44,6 +45,7 @@ static size_t* solve_tsp(std::vector<TreeNode*>& nodes, const Graph& g,
     }
     it++;
   }
+  total_cost += g.dist_matrix[nodes[node_id]->id][prev->id];
   *cost = total_cost;
   return tsp;
 }
@@ -73,8 +75,9 @@ int main(int argc, char* argv[])
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distribution(0, g->no_nodes - 1);
   // Find MST
-  std::vector<TreeNode*> mst = primFindMST(g);
-  auto iterations = (size_t)ceil(sqrt(g->no_nodes));
+  std::vector<TreeNode*> mst = prim_find_MST(g);        // MST
+  auto iterations = (size_t)ceil(sqrt(g->no_nodes));    // Num of iterations
+  // size_t* best_tsp = nullptr;   // To visualize it later
   for(size_t i = 0; i < iterations; i++) {
     // Pre-order walk starting from random node
     uint64_t cost = 0;
@@ -86,19 +89,22 @@ int main(int argc, char* argv[])
       static_cast<long double>(cost) / static_cast<long double>(iterations);
     avg_steps +=
       static_cast<double>(data.second) / static_cast<double>(iterations);
-    if(best_cost > cost) {
-      best_cost = cost;
-    }
-    delete[] tsp;
+    // if(best_cost > cost) {
+     //  best_cost = cost;
+      // delete[] best_tsp;
+      // best_tsp = tsp;
+    // }else {
+        delete[] tsp;
+    //}
   }
   std::cout << "Avg. solution cost: " << avg_cost << std::endl;
   std::cout << "Avg. steps: " << avg_steps << std::endl;
   std::cout << "The best solution: " << best_cost << std::endl;
-
   // Cleanup
   for(auto& i: mst) {
     delete i;
   }
+  //delete[] best_tsp;
   delete g;
   return 0;
 }
