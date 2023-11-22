@@ -7,6 +7,7 @@ set(SOURCES src/DataParser.cpp
         src/data_structs/Node.cpp
         src/primAlgorithm.cpp
         src/data_structs/Graph.cpp src/data_structs/TreeNode.cpp
+        src/local_search.cpp
 )
 
 add_executable(z1.out app/z1.cpp ${SOURCES})
