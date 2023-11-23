@@ -14,7 +14,7 @@ static int32_t invert(const size_t* tsp, const size_t i, const size_t j,
     minus += dist_matrix[tmp][tsp[i]];
     plus += dist_matrix[tmp][tsp[j]];
   }
-  else if(j == max_n - 1)
+  else if(j >= max_n - 2)
   {
     return 0;
   }
@@ -29,6 +29,10 @@ static int32_t invert(const size_t* tsp, const size_t i, const size_t j,
     size_t tmp = tsp[j + 1];
     minus += dist_matrix[tmp][tsp[j]];
     plus += dist_matrix[tmp][tsp[i]];
+  }
+  else if(i == 1)
+  {
+      return 0;
   }
   else
   {
@@ -48,7 +52,8 @@ std::pair<uint64_t, size_t> local_search(size_t* tsp, const Graph& g,
 
   while(true) {
     uint64_t candidate = UINT64_MAX;
-    size_t best_i, best_j;
+    size_t best_i = 0;
+    size_t best_j = 0;
     for(size_t i = 0; i < n - 1; i++) {
       for(size_t j = i + 1; j < n; j++) {
         int32_t tmp = invert(tsp, i, j, g.dist_matrix, n);

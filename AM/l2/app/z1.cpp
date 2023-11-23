@@ -89,11 +89,11 @@ int main(int argc, char* argv[])
       static_cast<long double>(cost) / static_cast<long double>(iterations);
     avg_steps +=
       static_cast<double>(data.second) / static_cast<double>(iterations);
-    // if(best_cost > cost) {
-     //  best_cost = cost;
+    if(best_cost > cost) {
+     best_cost = cost;
       // delete[] best_tsp;
       // best_tsp = tsp;
-    // }else {
+    }//else {
         delete[] tsp;
     //}
   }
