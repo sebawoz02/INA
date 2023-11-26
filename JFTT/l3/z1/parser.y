@@ -24,28 +24,42 @@ int mul(long long int a, long long int b, int p){
 	return x%p;
 }
 
-int mult_inv(int a, int b, int *x, int *y){
-	if (a == 0){
-		*x = 0;
-		*y = 1;
-		return b;
+int mult_inv(int a, int p){
+	int p0 = p;
+	int a0 = a;
+	int y = 0, x = 1;
+
+	while(a > 1 && p != 0)
+	{
+		int q = a/p;
+		int t = p;
+
+		p = a%p, a = t;
+		t = y;
+
+		y = x - q*y;
+		x = t;
+	}
+	if(a != 1)
+	{
+		err=1;
+		printf("Nie istnieje odwrotność %i modulo %i\n", a0, p0);
+		return -1;
 	}
 
-	int h1, h2;
-	int g = mult_inv(b%a, a, &h1, &h2);
-
-	*x = h2 - (b/a)*h1;
-	*y = h1;
-	return g;
+	if(x < 0)
+	{
+		x += p0;
+	}
+	return x;
 }
 
 int divide(int a, int b, int p){
-	int x, y;
-	mult_inv(b, p, &x, &y);
-	if (x < 0){
-		x += p;
+	b = mult_inv(b, p);
+	if (b == -1){
+		return 0;
 	}
-	return mul(a, x, p);
+	return mul(a, b, p);
 }
 
 

@@ -10,7 +10,9 @@ precedence = (
     )
 
 P = 1234577
-
+names = { }
+rpn = [] # reverse polish notation
+error = 0
 
 def add(a, b, p):
 	return (a%p + b%p)%p
@@ -25,22 +27,40 @@ def mul(a, b, p):
 	return x%p
 
 
-def mult_inv(a, b):
-	if a == 0:
-		x = 0
-		y = 1
-		return b, x, y
+def mult_inv(a,p):
+    p0 = p 
+    a0 = a
+    y = 0
+    x = 1
+  
+    while a > 1 and p != 0: 
+        q = a // p
+  
+        t = p 
 
-	g, h1, h2 = mult_inv(b%a, a)
-	x = h2 - (b//a)*h1
-	y = h1
-	return g, x, y
+        p = a % p 
+        a = t 
+        t = y 
+   
+        y = x - q * y 
+        x = t
+
+    if a != 1:
+        global error
+        error=1
+        print(f"Nie istnieje odwrotność {a0} modulo {p0}")
+        return -1
+
+    if(x < 0):
+        x += p0
+    return x
+
 
 
 def divide(a, b, p):
-	_, x, _ = mult_inv(b, p)
-	if (x < 0):
-		x += p
+	x = mult_inv(b, p)
+	if x == -1:
+		return 0
 	return mul(a, x, p)
 
 
@@ -57,10 +77,6 @@ def power(a, b, p):
         b = b // 2
     return result
 
-
-names = { }
-rpn = [] # reverse polish notation
-error = 0
 
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
@@ -95,11 +111,6 @@ def p_expression_op(t):
         t[0] = mul(t[1], t[3], P)
     elif t[2] == '/':
         rpn.append("/")
-        if t[3] == 0:
-            global error
-            error = 1
-            t[0] = 0
-            return 
         t[0] = divide(t[1], t[3], P)
     elif t[2] == '^':
         rpn.append('^')
@@ -116,6 +127,7 @@ def p_expression_group(t):
 def p_expression_number(t):
     'expression : NUMBER'
     t[0] = t[1]%P
+    rpn.append(str(int(t[1])%P))
 
 def p_expression_name(t):
     'expression : NAME'
@@ -162,6 +174,7 @@ def p_expression2_uminus(t):
 def p_expression2_number(t):
     'expression2 : NUMBER'
     t[0] = t[1]%(P-1)
+    rpn.append(str(int(t[1])%(P-1)))
 
 def p_error(t):
     rpn.clear()
