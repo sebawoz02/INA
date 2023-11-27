@@ -1,5 +1,50 @@
-from lexer import tokens
+import ply.lex as lex
+
 import ply.yacc as yacc
+
+
+parser_error = 0
+
+tokens = (
+    'NAME','NUMBER',
+    'PLUS','MINUS','TIMES','DIVIDE', 'POW', 'EQUALS', 
+    'LPAREN','RPAREN',
+    )
+
+# Tokens
+
+t_PLUS    = r'\+'
+t_MINUS   = r'-'
+t_TIMES   = r'\*'
+t_DIVIDE  = r'/'
+t_POW     = r'\^'
+t_EQUALS  = r'='
+t_LPAREN  = r'\('
+t_RPAREN  = r'\)'
+t_NAME    = r'[a-zA-Z_][a-zA-Z0-9_]*'
+
+def t_NUMBER(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Za duża liczba: %d", t.value)
+        t.value = 0
+    return t
+
+# Ignored characters
+t_ignore = ' \t'
+t_ignore_slash = r'\\\n'
+t_ignore_comment =  '^\#(.|\\\n)*\n'
+    
+def t_error(t):
+    global parser_error
+    parser_error = 1
+    print("Syntax error %s" % t.value[0])
+    t.lexer.skip(1)
+    
+# Build the lexer
+lexer = lex.lex()
 
 # Parsing rules
 precedence = (
@@ -81,18 +126,21 @@ def power(a, b, p):
 def p_statement_assign(t):
     'statement : NAME EQUALS expression'
     names[t[1]] = t[3]
+    rpn.clear()
 
 def p_statement_expr(t):
     'statement : expression'
     global error
+    global parser_error
     rpntext = ""
     for element in rpn:
         rpntext += element + " "
     rpn.clear()
     
-    if error == 0:
+    if error == 0 and parser_error == 0:
         print("{}\nWynik: {}".format(rpntext, t[1]))
     error = 0
+    parser_error = 0
 
 def p_expression_op(t):
     '''expression : expression PLUS expression
@@ -134,11 +182,24 @@ def p_expression_name(t):
     global error
     try:
         t[0] = names[t[1]]
+        rpn.append(str(t[0]))
     except LookupError:
         rpn.clear()
         error = 1
         print("Niezdefiniowana zmienna: '%s'" % t[1])
         t[0] = 0
+
+def p_expression2_name(t):
+    'expression2 : NAME'
+    global error
+    try:
+        t[0] = names[t[1]]
+        rpn.append(str(t[0]))
+    except LookupError:
+        rpn.clear()
+        error = 1
+        print("Niezdefiniowana zmienna: '%s'" % t[1])
+        t[0] = 0        
 
 def p_expression2_op(t):
     '''expression2 : expression2 PLUS expression2
@@ -177,13 +238,20 @@ def p_expression2_number(t):
     rpn.append(str(int(t[1])%(P-1)))
 
 def p_error(t):
+    global error
+    error = 1
     rpn.clear()
 
 parser = yacc.yacc()
 
 while True:
     try:
-        s = input()
+        s = ""
+        while True:
+            s += input()
+            if s[-1] != '\\':
+                break
+            s += '\n'
     except EOFError:
         break
     parser.parse(s)
