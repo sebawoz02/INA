@@ -27,16 +27,17 @@ def encode(pixels, image_width, image_height, mode):
 
 def get_entropy(pixels, type):
     result = {}
-    for i in range(256):
-        result[i] = 0
     size = 0
     if type == 'all':
         for pixel in pixels:
-            result[pixel.red] += 1
-            result[pixel.green] += 1
-            result[pixel.blue] += 1
-            size += 3
+            if pixel.__repr__() in result.keys():
+                result[pixel.__repr__()] += 1
+            else:
+                result[pixel.__repr__()] = 1
+            size += 1
     else:
+        for i in range(256):
+            result[i] = 0
         for pixel in pixels:
             result[getattr(pixel, type)] += 1
             size += 1
@@ -44,8 +45,8 @@ def get_entropy(pixels, type):
     for item in result.values():
         if item == 0:
             continue
-        entropy = entropy + item * (-math.log2(item))
-    entropy = entropy / size + math.log2(size)
+        p = item/size
+        entropy -= p*math.log2(p)
     return entropy
 
 
