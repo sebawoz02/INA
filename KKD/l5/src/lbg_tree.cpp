@@ -9,7 +9,7 @@
 static void compute_centroid(Node* node, std::vector<Pixel>& pixels);
 
 struct Node {
-  std::string code;
+  size_t depth;
   Pixel pixel;
   Node* left;
   Node* right;
@@ -38,7 +38,7 @@ static void compute_centroid(Node* node, std::vector<Pixel>& pixels)
 LBG_tree::LBG_tree(std::vector<std::vector<Pixel>>& image, size_t size)
 {
   this->root =
-    new Node{.code = "", .pixel = Pixel(), .left = nullptr, .right = nullptr};
+    new Node{.depth = 0, .pixel = Pixel(), .left = nullptr, .right = nullptr};
   this->height = size;
 
   size_t img_height = image.size();
@@ -58,18 +58,18 @@ LBG_tree::LBG_tree(std::vector<std::vector<Pixel>>& image, size_t size)
 
 void LBG_tree::linde_buzo_gray(const std::vector<Pixel>& pixels, Node* node)
 {
-  if(node->code.size() == this->height)
+  if(node->depth == this->height)
     return;
 
   std::random_device rd;
   std::mt19937 generator(rd());
   std::uniform_int_distribution<int> dist(-2, 2);
 
-  node->left = new Node{.code = node->code + "0",
+  node->left = new Node{.depth = node->depth + 1,
                         .pixel = node->pixel,
                         .left = nullptr,
                         .right = nullptr};
-  node->right = new Node{.code = node->code + "1",
+  node->right = new Node{.depth = node->depth + 1,
                          .pixel = node->pixel,
                          .left = nullptr,
                          .right = nullptr};
@@ -112,8 +112,8 @@ void LBG_tree::linde_buzo_gray(const std::vector<Pixel>& pixels, Node* node)
     compute_centroid(node->left, left_pixels);
     compute_centroid(node->right, right_pixels);
     // Repeat if it's the same color as it was before
-  } while(node->left->pixel == prev_left_pixel ||
-          node->right->pixel == prev_right_pixel);
+  } while(!(node->left->pixel == prev_left_pixel) ||
+          !(node->right->pixel == prev_right_pixel));
 
   // Get more colors if num of colors not reached yet
   this->linde_buzo_gray(left_pixels, node->left);
