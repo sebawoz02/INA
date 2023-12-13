@@ -1,9 +1,9 @@
 //
 // Created by sebawoz02 on 13.12.23.
 //
-#include <pixel.h>
+#include <pixel.hpp>
 
-[[nodiscard]] bool Pixel::are_equal(Pixel p) const
+[[nodiscard]] bool operator==(const Pixel& p1, const Pixel& p2)
 {
-  return red == p.red && green == p.green && blue == p.blue;
+  return p1.red == p2.red && p1.green == p2.green && p1.blue == p2.blue;
 }

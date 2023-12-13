@@ -6,7 +6,7 @@
 #include <lbg_tree.hpp>
 #include <random>
 
-static void set_avg_distance(Node* node, std::vector<Pixel>& pixels);
+static void compute_centroid(Node* node, std::vector<Pixel>& pixels);
 
 struct Node {
   std::string code;
@@ -15,7 +15,7 @@ struct Node {
   Node* right;
 };
 
-static void set_avg_distance(Node* node, std::vector<Pixel>& pixels)
+static void compute_centroid(Node* node, std::vector<Pixel>& pixels)
 {
   uint64_t red = 0;
   uint64_t green = 0;
@@ -52,7 +52,7 @@ LBG_tree::LBG_tree(std::vector<std::vector<Pixel>>& image, size_t size)
     }
   }
 
-  set_avg_distance(this->root, pixels); // Avg color
+  compute_centroid(this->root, pixels); // Avg color
   this->linde_buzo_gray(pixels, this->root);
 }
 
@@ -109,8 +109,8 @@ void LBG_tree::linde_buzo_gray(const std::vector<Pixel>& pixels, Node* node)
       }
     }
 
-    set_avg_distance(node->left, left_pixels);
-    set_avg_distance(node->right, right_pixels);
+    compute_centroid(node->left, left_pixels);
+    compute_centroid(node->right, right_pixels);
     // Repeat if it's the same color as it was before
   } while(node->left->pixel == prev_left_pixel ||
           node->right->pixel == prev_right_pixel);
