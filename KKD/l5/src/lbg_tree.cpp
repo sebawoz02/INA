@@ -3,7 +3,7 @@
 //
 #include <algorithm>
 #include <cmath>
-#include <lbg_tree.h>
+#include <lbg_tree.hpp>
 #include <random>
 
 static void set_avg_distance(Node* node, std::vector<Pixel>& pixels);
@@ -112,8 +112,8 @@ void LBG_tree::linde_buzo_gray(const std::vector<Pixel>& pixels, Node* node)
     set_avg_distance(node->left, left_pixels);
     set_avg_distance(node->right, right_pixels);
     // Repeat if it's the same color as it was before
-  } while(!node->left->pixel.are_equal(prev_left_pixel) ||
-          !node->right->pixel.are_equal(prev_right_pixel));
+  } while(node->left->pixel == prev_left_pixel ||
+          node->right->pixel == prev_right_pixel);
 
   // Get more colors if num of colors not reached yet
   this->linde_buzo_gray(left_pixels, node->left);

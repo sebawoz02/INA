@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pixel.h>
+#include <pixel.hpp>
 #include <string>
 #include <vector>
 

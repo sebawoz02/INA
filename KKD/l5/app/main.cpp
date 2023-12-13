@@ -1,9 +1,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
-#include <header_tga.h>
+#include <header_tga.hpp>
 #include <iostream>
-#include <lbg_tree.h>
+#include <lbg_tree.hpp>
 #include <vector>
 
 static std::vector<std::vector<Pixel>> load_image(std::ifstream* input_stream,
