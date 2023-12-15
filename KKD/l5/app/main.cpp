@@ -17,9 +17,9 @@ std::vector<std::vector<Pixel>> load_image(std::ifstream* input_stream,
 
   for(int i = 0; i < tga_head.height; i++) {
     for(int j = 0; j < tga_head.width; j++) {
-      *input_stream >> std::noskipws >> image[i][j].red;
-      *input_stream >> std::noskipws >> image[i][j].green;
       *input_stream >> std::noskipws >> image[i][j].blue;
+      *input_stream >> std::noskipws >> image[i][j].green;
+      *input_stream >> std::noskipws >> image[i][j].red;
     }
   }
 
@@ -67,9 +67,10 @@ int main(int argc, char** argv)
   for(size_t i = 0; i < header.height; i++) {
     for(size_t j = 0; j < header.width; j++) {
       Pixel pixel = tree.next_node(image[i][j]);
-      output_stream << pixel.red;
-      output_stream << pixel.green;
       output_stream << pixel.blue;
+      output_stream << pixel.green;
+      output_stream << pixel.red;
+
       mse_helper += LBG_tree::distance(image[i][j], pixel);
       snr_helper += pixel.red * pixel.red + pixel.green * pixel.green +
                     pixel.blue * pixel.blue;
