@@ -12,7 +12,7 @@ Informatyka algorytmiczna PWr 2021-2024
 | KKD - Kodowanie i kompresja danych                   | In progress          |
 | MPIS - Metody probabilistyczne i statystyka          | 5.0                  |
 | ON - Obliczenia naukowe                              | In progress          |
-| PW - Programowanie współbieżne                       | In progress          |
+| PW - Programowanie współbieżne                       | 4.0                  |
 | ----pozostałe----                                    | n/a                  |
 | Aplikacje mobilne                                    | 4.0                  |
 | Technologie programowania                            | 5.5                  |
