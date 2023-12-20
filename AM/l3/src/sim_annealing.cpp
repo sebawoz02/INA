@@ -57,11 +57,11 @@ uint64_t sim_annealing(size_t* tsp, const Graph& g, uint64_t init_cost)
   size_t V = g.no_nodes;
 
   // Parameters
-  long double T = V;
+  long double T = init_cost;
   long double delta_t = 0.95f;
-  size_t epoch_it = V * 50;
-  size_t max_epochs = V * 100;
-  size_t max_epochs_without_new_best = 20;
+  size_t EPOCH_IT = V * 0.3;
+  size_t MAX_EPOCHS = 10*V;
+  size_t MAX_EPOCHS_WITHOUT_NEW_BEST = MAX_EPOCHS/10;
   // ------
 
   uint64_t cur_cost = init_cost;
@@ -73,9 +73,9 @@ uint64_t sim_annealing(size_t* tsp, const Graph& g, uint64_t init_cost)
   std::uniform_int_distribution<size_t> dist_i(0, V - 2);
   std::uniform_real_distribution<double> pr_dist(0.0, 1.0);
 
-  for(size_t epoch = 1; epoch <= max_epochs; epoch++) {
+  for(size_t epoch = 1; epoch <= MAX_EPOCHS; epoch++) {
     bool new_best_this_epoch = false;
-    for(size_t it = 0; it < epoch_it; it++) {
+    for(size_t it = 0; it < EPOCH_IT; it++) {
       size_t i = dist_i(gen);
       std::uniform_int_distribution<size_t> dist_j(i, V - 1);
       size_t j = dist_j(gen);
@@ -96,7 +96,7 @@ uint64_t sim_annealing(size_t* tsp, const Graph& g, uint64_t init_cost)
     T *= delta_t;
     // End condition
     if(!new_best_this_epoch) {
-      if(++epochs_without_new_best >= max_epochs_without_new_best)
+      if(++epochs_without_new_best >= MAX_EPOCHS_WITHOUT_NEW_BEST)
         break;
     } else {
       epochs_without_new_best = 0;

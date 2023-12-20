@@ -1,9 +1,7 @@
 #include <string>
 #include <tabu_search.h>
 #include <unordered_set>
-
-#define TABU_CAPACITY (size_t)500
-#define MAX_IT_WITHOUT_NEW_BEST 50
+#include <iostream>
 
 static int32_t invert(const size_t* tsp, size_t i, size_t j,
                       uint64_t** dist_matrix, size_t max_n);
@@ -52,28 +50,34 @@ static int32_t invert(const size_t* tsp, const size_t i, const size_t j,
 std::pair<uint64_t, size_t> tabu_search(size_t* tsp, const Graph& g,
                                         uint64_t init_cost)
 {
-  size_t n = g.no_nodes;
+  size_t V = g.no_nodes;
+
+  // Parameters
+  size_t TABU_CAPACITY = V/5;
+  size_t MAX_IT_WITHOUT_NEW_BEST = TABU_CAPACITY/7;
+  // ------
+
   uint64_t cost = init_cost;
   size_t steps = 0;
   std::unordered_set<std::string> tabu;
+  size_t best_solution[V];
+
+  size_t it_without_new_best = 0;
   size_t tabu_len = 0;
 
-  size_t best_solution[n];
-  size_t it_without_new_best = 0;
-
   while(true) {
-    uint64_t candidate = UINT64_MAX;
+    uint64_t candidate = init_cost;
     size_t best_i = 0;
     size_t best_j = 0;
-    for(size_t i = 0; i < n - 1; i++) {
-      for(size_t j = i + 1; j < n; j++) {
-        int32_t tmp = invert(tsp, i, j, g.dist_matrix, n);
-        uint64_t tmp2 = cost + tmp;
-        if(tmp2 < candidate) {
+    for(size_t i = 0; i < V - 1; i++) {
+      for(size_t j = i + 1; j < V; j++) {
+        int32_t tmp = invert(tsp, i, j, g.dist_matrix, V);
+        uint64_t neigh_cost = cost + tmp;
+        if(neigh_cost < candidate) {
           // Check if it is on tabu list
           // Make a copy
-          size_t tsp_copy[n];
-          for(size_t it = 0; it < n; it++) {
+          size_t tsp_copy[V];
+          for(size_t it = 0; it < V; it++) {
             tsp_copy[it] = tsp[it];
           }
           // Invert from i to j
@@ -83,12 +87,12 @@ std::pair<uint64_t, size_t> tabu_search(size_t* tsp, const Graph& g,
             tsp_copy[j - it] = tmp3;
           }
           // Make it str and check in tabu list
-          std::string str_tsp_copy = array_to_str(tsp_copy, n);
+          std::string str_tsp_copy = array_to_str(tsp_copy, V);
           if(tabu.find(str_tsp_copy) != tabu.end())
             continue;
           best_i = i;
           best_j = j;
-          candidate = tmp2;
+          candidate = neigh_cost;
         }
       }
     }
@@ -98,25 +102,31 @@ std::pair<uint64_t, size_t> tabu_search(size_t* tsp, const Graph& g,
       tsp[best_i + it] = tsp[best_j - it];
       tsp[best_j - it] = tmp;
     }
-    tabu.insert(array_to_str(tsp, n));
+    tabu.insert(array_to_str(tsp, V));
     tabu_len++;
 
     if(candidate < cost) {
+      it_without_new_best = 0;
       cost = candidate;
-      for(size_t i = 0; i < n; i++)
+      for(size_t i = 0; i < V; i++)
         best_solution[i] = tsp[i];
     } else {
       it_without_new_best++;
-      if(it_without_new_best == MAX_IT_WITHOUT_NEW_BEST)
-        break;
+      if(it_without_new_best == MAX_IT_WITHOUT_NEW_BEST) {
+          std::cout << "MAX iterations" << std::endl;
+          break;
+      }
     }
     steps++;
     if(tabu_len == TABU_CAPACITY) // Tabu list is full
-      break;
+    {
+        std::cout << "MAX tabu capacity" << std::endl;
+        break;
+    }
   }
 
   // Copy best solution
-  for(size_t i = 0; i < n; i++)
+  for(size_t i = 0; i < V; i++)
     tsp[i] = best_solution[i];
   return std::make_pair(cost, steps);
 }
