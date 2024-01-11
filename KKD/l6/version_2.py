@@ -1,5 +1,6 @@
 import sys
 from pixel import Pixel
+from math import ceil
 
 
 def read_tga(input_file):
@@ -24,16 +25,6 @@ def read_tga(input_file):
 # DIFFERENTIAL ENCODING ------------------
 
 
-def encode_differential_seq(sequence):
-    a = sequence[0]
-    result = [a]
-    for p in sequence[1:]:
-        a = p - a
-        result.append(a)
-        a = p
-    return result
-
-
 def diff_with_dict(sequence, centr_dict, centroid):
     a = sequence[0]
     result = [centroid[centr_dict[a]]]
@@ -54,72 +45,77 @@ def decode_differential_seq(diffs):
 
 
 def differential_encoding(bitmap, bits):
-    rs = [pixel.r for row in bitmap for pixel in row]
-    gs = [pixel.g for row in bitmap for pixel in row]
-    bs = [pixel.b for row in bitmap for pixel in row]
+    red = [pixel.r for row in bitmap for pixel in row]
+    green = [pixel.g for row in bitmap for pixel in row]
+    blue = [pixel.b for row in bitmap for pixel in row]
 
-    _, cent_r, dict_r = nonuniform_quantizer(rs, bits)
-    _, cent_g, dict_g = nonuniform_quantizer(gs, bits)
-    _, cent_b, dict_b = nonuniform_quantizer(bs, bits)
+    _, cent_r, dict_r = nonuniform_quantizer(red, bits)
+    _, cent_g, dict_g = nonuniform_quantizer(green, bits)
+    _, cent_b, dict_b = nonuniform_quantizer(blue, bits)
 
-    diff_r = diff_with_dict(rs, dict_r, cent_r)
-    diff_g = diff_with_dict(gs, dict_g, cent_g)
-    diff_b = diff_with_dict(bs, dict_b, cent_b)
+    diff_r = diff_with_dict(red, dict_r, cent_r)
+    diff_g = diff_with_dict(green, dict_g, cent_g)
+    diff_b = diff_with_dict(blue, dict_b, cent_b)
 
-    id_r, cent_r, _ = nonuniform_quantizer(diff_r, bits, min_val=min(min(diff_r)-10, -255),
-                                           max_val=max(max(diff_r)+10, 255))
-    id_g, cent_g, _ = nonuniform_quantizer(diff_g, bits, min_val=min(min(diff_g)-10, -255),
-                                           max_val=max(max(diff_g)+10, 255))
-    id_b, cent_b, _ = nonuniform_quantizer(diff_b, bits, min_val=min(min(diff_b)-10, -255),
-                                           max_val=max(max(diff_b)+10, 255))
+    id_r, cent_r, _ = nonuniform_quantizer(diff_r, bits, min_val=min(diff_r),
+                                           max_val=max(diff_r))
+    id_g, cent_g, _ = nonuniform_quantizer(diff_g, bits, min_val=min(diff_g),
+                                           max_val=max(diff_g))
+    id_b, cent_b, _ = nonuniform_quantizer(diff_b, bits, min_val=min(diff_b),
+                                           max_val=max(diff_b))
 
-    encoded = cent_r
-    encoded.extend(cent_g)
-    encoded.extend(cent_b)
-    encoded = ''.join(['0' + bin(abs(el))[2:].zfill(8) if el > 0
-                       else '1' + bin(abs(el))[2:].zfill(8)
-                       for el in encoded])
+    encoded_centroids = cent_r
+    encoded_centroids.extend(cent_g)
+    encoded_centroids.extend(cent_b)
+    encoded_centroids = ''.join(['0' + bin(abs(el))[2:].zfill(8) if el > 0
+                                 else '1' + bin(abs(el))[2:].zfill(8)
+                                 for el in encoded_centroids])
+    encoded_centroids += '0' * ((8 - len(encoded_centroids)) % 8)
 
     encoded_indices = []
     for i in range(len(id_r)):
         encoded_indices.extend([id_b[i], id_g[i], id_r[i]])
-
-    return encoded + ''.join([bin(el)[2:].zfill(bits) for el in encoded_indices])   # centroids + k bit indices
+    return encoded_centroids + ''.join([bin(el)[2:].zfill(bits) for el in encoded_indices])  # centroids + k bit indices
 
 
 def differential_decoding(file, bits):
     n = 2 ** bits
     with open(file, "rb") as f:
         header = f.read(18)
-        _ = f.read(1)
-        encoded = f.read()
+        pad = int.from_bytes((f.read(1)), byteorder='big')
+        encoded_centroids = f.read(ceil(n * 3 * 9 / 8))
+        encoded_indices = f.read()
 
-    bits_string = "".join(format(byte, '08b') for byte in encoded)
-
+    # DECODE CENTROIDS
+    bits_string_centroids = "".join(format(byte, '08b') for byte in encoded_centroids)
     red_centroids = []
     blue_centroids = []
     green_centroids = []
-    for i in range(0, n*9, 9):
-        el = int(bits_string[i+1:i+9], 2) if bits_string[i] == "0" else -1*int(bits_string[i+1:i+9], 2)
+    for i in range(0, n * 9, 9):
+        el = int(bits_string_centroids[i + 1:i + 9], 2) if bits_string_centroids[i] == "0" \
+            else -1 * int(bits_string_centroids[i + 1:i + 9], 2)
         red_centroids.append(el)
     for i in range(n * 9, 2 * n * 9, 9):
-        el = int(bits_string[i + 1:i + 9], 2) if bits_string[i] == "0" else -1 * int(bits_string[i + 1:i + 9], 2)
+        el = int(bits_string_centroids[i + 1:i + 9], 2) if bits_string_centroids[i] == "0" \
+            else -1 * int(bits_string_centroids[i + 1:i + 9], 2)
         green_centroids.append(el)
     for i in range(2 * n * 9, 3 * n * 9, 9):
-        el = int(bits_string[i + 1:i + 9], 2) if bits_string[i] == "0" else -1 * int(bits_string[i + 1:i + 9], 2)
+        el = int(bits_string_centroids[i + 1:i + 9], 2) if bits_string_centroids[i] == "0" \
+            else -1 * int(bits_string_centroids[i + 1:i + 9], 2)
         blue_centroids.append(el)
 
+    # DECODE INDICES
+    bits_string_indices = "".join(format(byte, '08b') for byte in encoded_indices)
     r_list = []
     g_list = []
     b_list = []
-    for i in range(3 * n * 9, len(bits_string), bits):
-        if (i - 3 * n * 9)/bits % 3 == 0:
-            b_list.append(blue_centroids[int(bits_string[i:i+bits], 2)])
-        elif (i - 3 * n * 9)/bits % 3 == 1:
-            g_list.append(green_centroids[int(bits_string[i:i+bits], 2)])
+    for i in range(0, len(bits_string_indices) - pad, bits):
+        if (i / bits) % 3 == 0:
+            b_list.append(blue_centroids[int(bits_string_indices[i:i + bits], 2)])
+        elif (i / bits) % 3 == 1:
+            g_list.append(green_centroids[int(bits_string_indices[i:i + bits], 2)])
         else:
-            r_list.append(red_centroids[int(bits_string[i:i+bits], 2)])
-
+            r_list.append(red_centroids[int(bits_string_indices[i:i + bits], 2)])
     rs = decode_differential_seq(r_list)
     gs = decode_differential_seq(g_list)
     bs = decode_differential_seq(b_list)
@@ -169,7 +165,7 @@ def sum_of_neighbours(image, i, j, width, height):
 
 def highpass_filter(image, i, j, width, height):
     summ, neighbours = sum_of_neighbours(image, i, j, width, height)
-    x = (neighbours+1) * image[i][j] - summ
+    x = (neighbours + 1) * image[i][j] - summ
     return 0 if x < 0 else 255 if x > 255 else x
 
 
@@ -222,7 +218,10 @@ def nonuniform_quantizer(color_values, bits, min_val=0, max_val=255):
     :return:
     """
     n = 2 ** bits
-    occurrences = {i: 0 for i in range(min_val, max_val+1)}
+    while n > max_val - min_val:
+        max_val = min(255, max_val + 1)
+        min_val = max(-255, min_val - 1)
+    occurrences = {i: 0 for i in range(min_val, max_val + 1)}
     for p in color_values:
         occurrences[p] += 1
     intervals = {(i, i + 1): occurrences[i] + occurrences[i + 1] for i in occurrences if i < max_val}
@@ -232,27 +231,27 @@ def nonuniform_quantizer(color_values, bits, min_val=0, max_val=255):
         k = dict_list.index(min_interval)
 
         if k == 0:
-            to_join = dict_list[1]
+            val = dict_list[1]
         elif k == len(dict_list) - 1:
-            to_join = dict_list[-2]
+            val = dict_list[-2]
         else:
-            to_join = dict_list[k - 1] if intervals[dict_list[k - 1]] < intervals[dict_list[k + 1]] \
-                     else dict_list[k + 1]
+            val = dict_list[k - 1] if intervals[dict_list[k - 1]] < intervals[dict_list[k + 1]] \
+                else dict_list[k + 1]
 
-        if to_join[0] > min_interval[0]:
-            new_interval = (min_interval[0], to_join[1])
+        if val[0] > min_interval[0]:
+            new_interval = (min_interval[0], val[1])
         else:
-            new_interval = (to_join[0], min_interval[1])
-        new_interval_value = intervals[min_interval] + intervals[to_join]
+            new_interval = (val[0], min_interval[1])
+        new_interval_value = intervals[min_interval] + intervals[val]
         intervals[new_interval] = new_interval_value
         del intervals[min_interval]
-        del intervals[to_join]
+        del intervals[val]
         intervals = dict(sorted(intervals.items()))
 
     centroids = [(el[0] + el[1]) // 2 for el in intervals]
     centroid_dict = {}
     j = 0
-    for i in range(min_val, max_val+1):
+    for i in range(min_val, max_val + 1):
         if j + 1 < n and abs(centroids[j + 1] - i) <= abs(centroids[j] - i):
             j += 1
         centroid_dict[i] = j
@@ -302,7 +301,7 @@ def quantizer_decoding(file_name, bits):
     n = 2 ** bits
     with open(file_name, "rb") as f:
         header = list(map(int, f.read(18)))
-        _ = f.read(1)   # padding
+        _ = f.read(1)  # padding
         red_centroids = list(map(int, f.read(n)))
         green_centroids = list(map(int, f.read(n)))
         blue_centroids = list(map(int, f.read(n)))
@@ -311,13 +310,13 @@ def quantizer_decoding(file_name, bits):
     # Extract indices and apply centroids
     bits_string = "".join(format(byte, '08b') for byte in image)
     output = []
-    for i in range(len(bits_string)//bits):
+    for i in range(len(bits_string) // bits):
         if i % 3 == 0:
-            output.append(blue_centroids[int(bits_string[i*bits:i*bits+bits], 2)])
+            output.append(blue_centroids[int(bits_string[i * bits:i * bits + bits], 2)])
         elif i % 3 == 1:
-            output.append(green_centroids[int(bits_string[i*bits:i*bits+bits], 2)])
+            output.append(green_centroids[int(bits_string[i * bits:i * bits + bits], 2)])
         else:
-            output.append(red_centroids[int(bits_string[i*bits:i*bits+bits], 2)])
+            output.append(red_centroids[int(bits_string[i * bits:i * bits + bits], 2)])
     return output, header
 
 

@@ -121,21 +121,21 @@ def nonuniform_quantizer(color_values, bits):
         k = dict_list.index(min_interval)
 
         if k == 0:
-            to_join = dict_list[1]
+            val = dict_list[1]
         elif k == len(dict_list) - 1:
-            to_join = dict_list[-2]
+            val = dict_list[-2]
         else:
-            to_join = dict_list[k - 1] if intervals[dict_list[k - 1]] < intervals[dict_list[k + 1]] \
+            val = dict_list[k - 1] if intervals[dict_list[k - 1]] < intervals[dict_list[k + 1]] \
                      else dict_list[k + 1]
 
-        if to_join[0] > min_interval[0]:
-            new_interval = (min_interval[0], to_join[1])
+        if val[0] > min_interval[0]:
+            new_interval = (min_interval[0], val[1])
         else:
-            new_interval = (to_join[0], min_interval[1])
-        new_interval_value = intervals[min_interval] + intervals[to_join]
+            new_interval = (val[0], min_interval[1])
+        new_interval_value = intervals[min_interval] + intervals[val]
         intervals[new_interval] = new_interval_value
         del intervals[min_interval]
-        del intervals[to_join]
+        del intervals[val]
         intervals = dict(sorted(intervals.items()))
 
     centroids = [(el[0] + el[1]) // 2 for el in intervals]
