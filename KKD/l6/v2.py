@@ -55,34 +55,42 @@ def read_encoded(input_file, bits):
     for i in range(0, n * 9, 9):
         quant_r_val.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
                            else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[n * 8:]
+    bits_string = bits_string[n * 9:]
     for i in range(0, n * 9, 9):
         quant_g_val.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
                            else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[n * 8:]
+    bits_string = bits_string[n * 9:]
     for i in range(0, n * 9, 9):
         quant_b_val.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
                            else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[n * 8:]
+    bits_string = bits_string[n * 9:]
 
     # Get high values
     val_range = width * height * bits // 2
     r_z = [quant_r_val[int(bits_string[i:i + bits], 2)] for i in range(0, val_range, bits)]
     g_z = [quant_g_val[int(bits_string[i:i + bits], 2)] for i in range(val_range, val_range * 2, bits)]
     b_z = [quant_b_val[int(bits_string[i:i + bits], 2)] for i in range(val_range * 2, val_range * 3, bits)]
-
     return (diffs_r, diffs_g, diffs_b), (r_z, g_z, b_z), header
 
 
 # DIFFERENTIAL ENCODING ------------------
 
-def get_differences(sequence, quantizer, quant_val):
-    a = quant_val[quantizer[sequence[0]]]
-    result = [a]
-    for p in sequence[1:]:
-        a = p - a
-        result.append(a)
-        a = quant_val[quantizer[p]]
+def get_differences(sequence, quant_dict=None, quant_val=None):
+    x_prev = sequence[0]
+    qn = 0
+    if quant_dict is not None:
+        tmp = quant_val[quant_dict[x_prev]]
+        qn += tmp - x_prev
+        x_prev = tmp
+    result = [x_prev]
+    for xn in sequence[1:]:
+        d = min(255, max(-255, xn - x_prev))
+        if quant_dict is not None:
+            d_hat = quant_val[quant_dict[d]]
+            qn += d_hat - d
+            d = d_hat
+        result.append(d)
+        x_prev = xn
     return result
 
 
@@ -109,13 +117,13 @@ def apply_filters(image):
         g.append(image[i].g)
         b.append(image[i].b)
 
-    r_low = [(r[i] + r[i - 1]) // 2 for i in range(1, len(r), 2)]
-    g_low = [(g[i] + g[i - 1]) // 2 for i in range(1, len(g), 2)]
-    b_low = [(b[i] + b[i - 1]) // 2 for i in range(1, len(b), 2)]
+    r_low = [(r[i] + r[i - 1])//2 for i in range(1, len(r), 2)]
+    g_low = [(g[i] + g[i - 1])//2 for i in range(1, len(g), 2)]
+    b_low = [(b[i] + b[i - 1])//2 for i in range(1, len(b), 2)]
 
-    r_high = [(r[i] - r[i - 1]) // 2 for i in range(1, len(r), 2)]
-    g_high = [(g[i] - g[i - 1]) // 2 for i in range(1, len(g), 2)]
-    b_high = [(b[i] - b[i - 1]) // 2 for i in range(1, len(b), 2)]
+    r_high = [(r[i] - r[i - 1])//2 for i in range(1, len(r), 2)]
+    g_high = [(g[i] - g[i - 1])//2 for i in range(1, len(g), 2)]
+    b_high = [(b[i] - b[i - 1])//2 for i in range(1, len(b), 2)]
 
     return (r_low, g_low, b_low), (r_high, g_high, b_high)
 
@@ -127,6 +135,9 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
     Get quantizer_dict, quantizer values and indices
     """
     n = 2 ** bits
+    while n > max_val - min_val:
+        max_val = min(max_val + 1, 255)
+        min_val = max(min_val - 1, -255)
     occurrences = {i: 0 for i in range(min_val, max_val + 1)}
     for p in quantized_values:
         occurrences[p] += 1
@@ -157,7 +168,7 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
     quantizer_val = [(el[0] + el[1]) // 2 for el in intervals]
     quantizer_dict = {}
     j = 0
-    for i in range(min_val, max_val + 1):
+    for i in range(-255, 256):
         if j + 1 < n and abs(quantizer_val[j + 1] - i) <= abs(quantizer_val[j] - i):
             j += 1
         quantizer_dict[i] = j
@@ -169,13 +180,17 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
 def encode(image, bits):
     (low_r, low_g, low_b), (high_r, high_g, high_b) = apply_filters(image)
 
-    low_quantizer_r, quant_val_r, _ = nonuniform_quantizer(low_r, bits)
-    low_quantizer_g, quant_val_g, _ = nonuniform_quantizer(low_g, bits)
-    low_quantizer_b, quant_val_b, _ = nonuniform_quantizer(low_b, bits)
+    diff_r, diff_g, diff_b = (get_differences(low_r),
+                              get_differences(low_g),
+                              get_differences(low_b))
 
-    diff_r, diff_g, diff_b = (get_differences(low_r, low_quantizer_r, quant_val_r),
-                              get_differences(low_g, low_quantizer_g, quant_val_g),
-                              get_differences(low_b, low_quantizer_b, quant_val_b))
+    r_diff_dict, r_diff_vals, _ = nonuniform_quantizer(diff_r, bits, min_val=min(diff_r), max_val=max(diff_r))
+    g_diff_dict, g_diff_vals, _ = nonuniform_quantizer(diff_g, bits, min_val=min(diff_g), max_val=max(diff_g))
+    b_diff_dict, b_diff_vals, _ = nonuniform_quantizer(diff_b, bits, min_val=min(diff_b), max_val=max(diff_b))
+
+    diff_r, diff_g, diff_b = (get_differences(low_r, r_diff_dict, r_diff_vals),
+                              get_differences(low_g, g_diff_dict, g_diff_vals),
+                              get_differences(low_b, b_diff_dict, b_diff_vals))
 
     _, high_quantizer_val_r, z_r = nonuniform_quantizer(high_r, bits, min_val=-255)
     _, high_quantizer_val_g, z_g = nonuniform_quantizer(high_g, bits, min_val=-255)
@@ -198,7 +213,7 @@ def encode(image, bits):
                             for el in i])
     # Encode high indices
     for i in (z_r, z_g, z_b):
-        encoded += ''.join(bin(el)[2:].zfill(bits) for el in i)
+        encoded += ''.join([bin(el)[2:].zfill(bits) for el in i])
 
     padding = (8 - len(encoded) % 8) % 8
     encoded += '0' * padding
