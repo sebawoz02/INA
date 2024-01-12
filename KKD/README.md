@@ -13,3 +13,15 @@ l3 - LZW coding with Elias and Fibonacci codes:
 - decode algorithm
 - Elias gamma, delta, omega coding
 - Fibonacci coding
+
+l4 - counting the difference between JPEG-LS predictors:
+- reading TGA image
+
+l5 - vector quantization:
+- linde-buzo-gray algorithm
+
+l6 - Encoding TGA image:
+- differential coding
+- non-uniform quantization
+- subband coding ( lowband, highband )
+  
