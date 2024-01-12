@@ -34,36 +34,22 @@ def read_encoded(input_file, bits):
     diffs_b = []
     # Extract diffs
     diffs_range = width * height * 9 // 2
-    for i in range(0, diffs_range, 9):
-        diffs_r.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
-                       else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[diffs_range:]
-    for i in range(0, diffs_range, 9):
-        diffs_g.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
-                       else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[diffs_range:]
-    for i in range(0, diffs_range, 9):
-        diffs_b.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
-                       else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[diffs_range:]
+    for tab in (diffs_r, diffs_g, diffs_b):
+        for i in range(0, diffs_range, 9):
+            tab.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
+                           else int(bits_string[i + 1:i + 9], 2) * -1)
+        bits_string = bits_string[diffs_range:]
 
     # Extract high quantizer values
     quant_r_val = []
     quant_g_val = []
     quant_b_val = []
     n = 2 ** bits
-    for i in range(0, n * 9, 9):
-        quant_r_val.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
-                           else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[n * 9:]
-    for i in range(0, n * 9, 9):
-        quant_g_val.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
-                           else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[n * 9:]
-    for i in range(0, n * 9, 9):
-        quant_b_val.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
-                           else int(bits_string[i + 1:i + 9], 2) * -1)
-    bits_string = bits_string[n * 9:]
+    for tab in (quant_r_val, quant_g_val, quant_b_val):
+        for i in range(0, n * 9, 9):
+            tab.append(int(bits_string[i + 1:i + 9], 2) if bits_string[i] == '0'
+                               else int(bits_string[i + 1:i + 9], 2) * -1)
+        bits_string = bits_string[n * 9:]
 
     # Get high values
     val_range = width * height * bits // 2
@@ -189,12 +175,12 @@ def encode(image, bits):
                               get_differences(low_g, g_diff_dict, g_diff_vals),
                               get_differences(low_b, b_diff_dict, b_diff_vals))
 
-    _, high_quantizer_val_r, z_r = nonuniform_quantizer(high_r, bits, min_val=-255)
-    _, high_quantizer_val_g, z_g = nonuniform_quantizer(high_g, bits, min_val=-255)
-    _, high_quantizer_val_b, z_b = nonuniform_quantizer(high_b, bits, min_val=-255)
+    _, high_quantizer_val_r, z_r = nonuniform_quantizer(high_r, bits, min_val=-128)
+    _, high_quantizer_val_g, z_g = nonuniform_quantizer(high_g, bits, min_val=-128)
+    _, high_quantizer_val_b, z_b = nonuniform_quantizer(high_b, bits, min_val=-128)
 
     # Encode low differential
-    encoded = ''.join(['0' + bin(abs(el))[2:].zfill(8) if el > 0
+    encoded = ''.join(['0' + bin(el)[2:].zfill(8) if el > 0
                        else '1' + bin(abs(el))[2:].zfill(8)
                        for el in diff_r])
     encoded += ''.join(['0' + bin(abs(el))[2:].zfill(8) if el > 0
