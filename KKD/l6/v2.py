@@ -77,17 +77,14 @@ def read_encoded(input_file, bits):
 
 def get_differences(sequence, quant_dict=None, quant_val=None):
     x_prev = sequence[0]
-    qn = 0
     if quant_dict is not None:
         tmp = quant_val[quant_dict[x_prev]]
-        qn += tmp - x_prev
         x_prev = tmp
     result = [x_prev]
     for xn in sequence[1:]:
         d = min(255, max(-255, xn - x_prev))
         if quant_dict is not None:
             d_hat = quant_val[quant_dict[d]]
-            qn += d_hat - d
             d = d_hat
         result.append(d)
         x_prev = xn
