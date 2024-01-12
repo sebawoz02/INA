@@ -1,7 +1,5 @@
 import sys
 from pixel import Pixel
-from math import ceil
-
 
 def read_tga(input_file):
     """
@@ -74,22 +72,25 @@ def read_encoded(input_file, bits):
 # DIFFERENTIAL ENCODING ------------------
 
 
-def get_differences(sequence, quantizer=None):
+def get_differences(sequence, quantizer=None, quant_val=None):
     a = sequence[0]
     result = [a]
     for p in sequence[1:]:
+        tmp = p - a
         if quantizer is not None:
-            a = quantizer[a]
-        result.append(p - a)
-        a = p
+            tmp = quant_val[quantizer[tmp]]
+        result.append(tmp)
+        a += tmp
     return result
 
 
 def revert_differences(x, y):
+    c = x[0]
     result = []
     for i in range(len(x)):
-        tmp = max(0, min(255, x[i] + y[i]))
+        tmp = max(0, min(255, c+x[i] + y[i]))
         result.append(tmp)
+        c += x[i]
     return result
 
 
@@ -125,9 +126,6 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
     Get quantizer_dict, quantizer values and indices
     """
     n = 2 ** bits
-    while n > max_val - min_val:
-        max_val = min(255, max_val + 1)
-        min_val = max(-255, min_val - 1)
     occurrences = {i: 0 for i in range(min_val, max_val + 1)}
     for p in quantized_values:
         occurrences[p] += 1
@@ -170,13 +168,17 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
 def encode(image, bits):
     (low_r, low_g, low_b), (high_r, high_g, high_b) = apply_filters(image)
 
-    low_quantizer_r, _, _ = nonuniform_quantizer(low_r, bits, min_val=-255, max_val=255)
-    low_quantizer_g, _, _ = nonuniform_quantizer(low_g, bits, min_val=-255, max_val=255)
-    low_quantizer_b, _, _ = nonuniform_quantizer(low_b, bits, min_val=-255, max_val=255)
+    diff_r, diff_g, diff_b = (get_differences(low_r),
+                              get_differences(low_g),
+                              get_differences(low_b))
 
-    diff_r, diff_g, diff_b = (get_differences(low_r, low_quantizer_r),
-                              get_differences(low_g, low_quantizer_g),
-                              get_differences(low_b, low_quantizer_b))
+    low_quantizer_r, quant_val_r, _ = nonuniform_quantizer(diff_r, bits, min_val=-255, max_val=255)
+    low_quantizer_g, quant_val_g, _ = nonuniform_quantizer(diff_g, bits, min_val=-255, max_val=255)
+    low_quantizer_b, quant_val_b, _ = nonuniform_quantizer(diff_b, bits, min_val=-255, max_val=255)
+
+    diff_r, diff_g, diff_b = (get_differences(low_r, low_quantizer_r, quant_val_r),
+                              get_differences(low_g, low_quantizer_g, quant_val_g),
+                              get_differences(low_b, low_quantizer_b, quant_val_b))
 
     _, high_quantizer_val_r, z_r = nonuniform_quantizer(high_r, bits)
     _, high_quantizer_val_g, z_g = nonuniform_quantizer(high_g, bits)
