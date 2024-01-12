@@ -1,6 +1,6 @@
 import sys
 from pixel import Pixel
-from differential_coding import *
+from other.differential_coding import *
 
 
 def read_tga(input_file):
