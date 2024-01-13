@@ -112,6 +112,8 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
     """
     Get quantizer_dict, quantizer values and indices
     """
+    min_val = max(-255, min_val)
+    max_val = min(255, max_val)
     n = 2 ** bits
     while n > max_val - min_val:
         max_val = min(max_val + 1, 255)
@@ -119,7 +121,7 @@ def nonuniform_quantizer(quantized_values, bits, min_val=0, max_val=255):
     occurrences = {i: 0 for i in range(min_val, max_val + 1)}
     for p in quantized_values:
         occurrences[p] += 1
-    intervals = {(i, i + 1): occurrences[i] + occurrences[i + 1] for i in occurrences if i < max_val}
+    intervals = {(i, i+1): occurrences[i] + occurrences[i + 1] for i in occurrences if i < max_val}
     while len(intervals) > n:
         min_interval = sorted(intervals, key=intervals.get)[0]
         dict_list = list(intervals)
@@ -162,17 +164,17 @@ def encode(image, bits):
                               get_differences(low_g),
                               get_differences(low_b))
 
-    r_diff_dict, r_diff_vals, _ = nonuniform_quantizer(diff_r, bits, min_val=min(diff_r), max_val=max(diff_r))
-    g_diff_dict, g_diff_vals, _ = nonuniform_quantizer(diff_g, bits, min_val=min(diff_g), max_val=max(diff_g))
-    b_diff_dict, b_diff_vals, _ = nonuniform_quantizer(diff_b, bits, min_val=min(diff_b), max_val=max(diff_b))
+    r_diff_dict, r_diff_vals, _ = nonuniform_quantizer(diff_r, bits, min_val=min(diff_r)-1, max_val=max(diff_r)+1)
+    g_diff_dict, g_diff_vals, _ = nonuniform_quantizer(diff_g, bits, min_val=min(diff_g)-1, max_val=max(diff_g)+1)
+    b_diff_dict, b_diff_vals, _ = nonuniform_quantizer(diff_b, bits, min_val=min(diff_b)-1, max_val=max(diff_b)+1)
 
     diff_r, diff_g, diff_b = (get_differences(low_r, r_diff_dict, r_diff_vals),
                               get_differences(low_g, g_diff_dict, g_diff_vals),
                               get_differences(low_b, b_diff_dict, b_diff_vals))
 
-    _, high_quantizer_val_r, z_r = nonuniform_quantizer(high_r, bits, min_val=-128)
-    _, high_quantizer_val_g, z_g = nonuniform_quantizer(high_g, bits, min_val=-128)
-    _, high_quantizer_val_b, z_b = nonuniform_quantizer(high_b, bits, min_val=-128)
+    _, high_quantizer_val_r, z_r = nonuniform_quantizer(high_r, bits, min_val=-128, max_val=128)
+    _, high_quantizer_val_g, z_g = nonuniform_quantizer(high_g, bits, min_val=-128, max_val=128)
+    _, high_quantizer_val_b, z_b = nonuniform_quantizer(high_b, bits, min_val=-128, max_val=128)
 
     # Encode low differential
     encoded = ''.join(['0' + bin(el)[2:].zfill(8) if el > 0
