@@ -12,7 +12,7 @@ public:
 
     Island(std::vector<Person*> ps, Graph* g);
 
-    void start(uint64_t** dist_matrix, size_t n, size_t id);
+    void start(Graph* g, size_t id);
 
 private:
     Random_Device* rd;

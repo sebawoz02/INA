@@ -10,6 +10,7 @@ set(SOURCES ../l2/src/DataParser.cpp
         ../l2/src/data_structs/Node.cpp
         ../l2/src/primAlgorithm.cpp
         ../l2/src/data_structs/TreeNode.cpp
+        ../l2/src/local_search.cpp
         src/genetic_algorithm.cpp
         src/island.cpp
         src/person.cpp

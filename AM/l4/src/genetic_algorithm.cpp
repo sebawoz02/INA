@@ -86,7 +86,7 @@ void GA::generate_mst_island()
 void GA::solve() {
     for(size_t i = 0; i < islands.size(); i++)
     {
-        islands[i]->start(graph->dist_matrix, graph->no_nodes, i+1);
+        islands[i]->start(graph, i+1);
     }
 }
 

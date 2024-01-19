@@ -3,12 +3,12 @@
 #include <iostream>
 #include <unordered_set>
 #include <utility>
+#include <local_search.h>
 
 
-#define NUM_OF_ITERATIONS 2000
-#define NUM_OF_ISLAND_ITERATIONS 2000
+#define NUM_OF_ISLAND_GENERATIONS 1000
 
-#define MUTATION_PROBABILITY 0.1f
+#define MUTATION_PROBABILITY 0.10f
 
 
 static int32_t calc_mutation_cost(const size_t* tsp, const size_t i, const size_t j,
@@ -52,14 +52,15 @@ static int32_t calc_mutation_cost(const size_t* tsp, const size_t i, const size_
 }
 
 
-
-void Island::start(uint64_t** dist_matrix, const size_t n, const size_t id) {
+void Island::start(Graph* g, const size_t id) {
     uint64_t best = UINT64_MAX;
+    size_t NUM_OF_GENERATIONS_WITHOUT_NEW_BEST = 2*g->no_nodes;
 
-    for(size_t it = 0; it < NUM_OF_ISLAND_ITERATIONS/NUM_OF_ITERATIONS; it++)
+    size_t without_new_best = 0;
+    for(;;)
     {
         // STEPS 2-4
-        for(size_t island_it = 0; island_it<NUM_OF_ISLAND_ITERATIONS; island_it++)
+        for(size_t island_it = 0; island_it < NUM_OF_ISLAND_GENERATIONS; island_it++)
         {
 
             // STEPS 2 and 3 - Selection and crossing
@@ -67,24 +68,32 @@ void Island::start(uint64_t** dist_matrix, const size_t n, const size_t id) {
             size_t new_population_size = 0;
             size_t i = 0;
             size_t j = 1;
-            while(new_population_size < n)
+            while(new_population_size < g->no_nodes)
             {
-                auto kids = pmx_crossing(i, j, dist_matrix, n);
+                auto kids = pmx_crossing(i, j, g->dist_matrix, g->no_nodes);
                 Person* kid1 = kids.first;
                 Person* kid2 = kids.second;
 
                 // STEP 4 - Mutations
                 // mutate with specified probability
                 if(rd->get_random_float() < MUTATION_PROBABILITY) {
+                    /*
                     auto p = rd->get_random_points();
                     int32_t tmp = calc_mutation_cost(kid1->genotype, p.first, p.second, dist_matrix, n);
                     kid1->mutate(p.first, p.second, kid1->phenotype + tmp);
+                    */
+                    uint64_t new_phenotype = local_search(kid1->genotype, *g, kid1->phenotype);
+                    kid1->phenotype = new_phenotype;
                 }
 
                 if(rd->get_random_float() < MUTATION_PROBABILITY) {
+                    /*
                     auto p = rd->get_random_points();
                     int32_t tmp = calc_mutation_cost(kid2->genotype, p.first, p.second, dist_matrix, n);
                     kid1->mutate(p.first, p.second, kid2->phenotype + tmp);
+                    */
+                    uint64_t new_phenotype = local_search(kid2->genotype, *g, kid2->phenotype);
+                    kid2->phenotype = new_phenotype;
                 }
 
                 new_population.push_back(kid1);
@@ -99,19 +108,38 @@ void Island::start(uint64_t** dist_matrix, const size_t n, const size_t id) {
                 }
             }
 
-            for(i = 0 ; i < n; i++)
+            // Remove all parents
+            for(i = 0 ; i <= j; i++)
             {
                 delete[] persons[i]->genotype;
                 delete persons[i];
             }
+            // Find best V persons in new population
+            for(;i < g->no_nodes;i++)
+            {
+                new_population.push_back(persons[i]);
+            }
+            std::sort(new_population.begin(), new_population.end(), Person::compare_by_phenotype);
+            for(i = new_population.size() - 1; i >= g->no_nodes; i--)
+            {
+                delete[] new_population[i]->genotype;
+                delete new_population[i];
+                new_population.pop_back();
+            }
+
             persons = new_population;
-            std::sort(persons.begin(), persons.end(), Person::compare_by_phenotype);
+
             if(persons[0]->phenotype < best)
             {
                 best = persons[0]->phenotype;
+                without_new_best = 0;
+            } else{
+                if(++without_new_best == NUM_OF_GENERATIONS_WITHOUT_NEW_BEST)
+                    break;
             }
         }
-
+        if(without_new_best == NUM_OF_GENERATIONS_WITHOUT_NEW_BEST)
+            break;
         // MULTI-ISLAND CROSSING HERE
 
     }
