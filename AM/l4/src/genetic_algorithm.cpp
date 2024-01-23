@@ -44,11 +44,13 @@ static size_t* solve_tsp(std::vector<TreeNode*>& nodes, const Graph& g,
 
 void GA::generate_random_island()
 {
+    size_t population_size = graph->no_nodes/2;
+
     std::random_device rand;
     std::mt19937 gen(rand());
 
     std::vector<Person*> persons;
-    for(size_t i = 0; i < graph->no_nodes; i++) {
+    for(size_t i = 0; i < population_size; i++) {
         auto* genotype = new size_t[graph->no_nodes];
         for (size_t j = 0; j < graph->no_nodes; j++) {
             genotype[j] = j;
@@ -67,20 +69,24 @@ void GA::generate_random_island()
     }
 
     std::sort(persons.begin(), persons.end(), Person::compare_by_phenotype);
-    islands.push_back(new Island(persons, graph));
+    islands.push_back(new Island(persons, graph, population_size));
 }
 
 void GA::generate_mst_island()
 {
+    auto population_size =
+            2*static_cast<size_t>(round(sqrt(static_cast<double>(graph->no_nodes))));
+
     std::vector<Person*> persons;
     // Find MST
     std::vector<TreeNode*> mst = prim_find_MST(graph);        // MST
-    for(size_t i = 0; i < graph->no_nodes; i++) {
+
+    for(size_t i = 0; i < population_size; i++) {
         uint64_t cost = 0;
         size_t *tsp = solve_tsp(mst, *graph, &cost, i);
         persons.push_back(new Person(tsp, cost));
     }
-    islands.push_back(new Island(persons, graph));
+    islands.push_back(new Island(persons, graph, population_size));
 }
 
 void GA::solve() {

@@ -11,50 +11,9 @@
 #define MUTATION_PROBABILITY 0.10f
 
 
-static int32_t calc_mutation_cost(const size_t* tsp, const size_t i, const size_t j,
-                             uint64_t** dist_matrix, const size_t max_n)
-{
-    uint64_t plus = 0;
-    uint64_t minus = 0;
-    if(i != 0)
-    {
-        size_t tmp = tsp[i - 1];
-        minus += dist_matrix[tmp][tsp[i]];
-        plus += dist_matrix[tmp][tsp[j]];
-    }
-    else if(j >= max_n - 2)
-    {
-        return 0;
-    }
-    else
-    {
-        size_t tmp = tsp[max_n - 1];
-        plus += dist_matrix[tsp[j]][tmp];
-        minus += dist_matrix[tsp[i]][tmp];
-    }
-    if(j != max_n - 1)
-    {
-        size_t tmp = tsp[j + 1];
-        minus += dist_matrix[tmp][tsp[j]];
-        plus += dist_matrix[tmp][tsp[i]];
-    }
-    else if(i == 1)
-    {
-        return 0;
-    }
-    else
-    {
-        size_t tmp = tsp[0];
-        plus += dist_matrix[tsp[i]][tmp];
-        minus += dist_matrix[tsp[j]][tmp];
-    }
-    return static_cast<int32_t>(plus) - static_cast<int32_t>(minus);
-}
-
-
 void Island::start(Graph* g, const size_t id) {
     uint64_t best = UINT64_MAX;
-    size_t NUM_OF_GENERATIONS_WITHOUT_NEW_BEST = 2*g->no_nodes;
+    size_t NUM_OF_GENERATIONS_WITHOUT_NEW_BEST = g->no_nodes;
 
     size_t without_new_best = 0;
     for(;;)
@@ -68,7 +27,7 @@ void Island::start(Graph* g, const size_t id) {
             size_t new_population_size = 0;
             size_t i = 0;
             size_t j = 1;
-            while(new_population_size < g->no_nodes)
+            while(new_population_size < population_size)
             {
                 auto kids = pmx_crossing(i, j, g->dist_matrix, g->no_nodes);
                 Person* kid1 = kids.first;
@@ -108,19 +67,22 @@ void Island::start(Graph* g, const size_t id) {
                 }
             }
 
-            // Remove all parents
-            for(i = 0 ; i <= j; i++)
+            // Remove all parents except the best one
+            for(i = 1 ; i <= j; i++)
             {
                 delete[] persons[i]->genotype;
                 delete persons[i];
             }
-            // Find best V persons in new population
-            for(;i < g->no_nodes;i++)
+            // Add prev generation
+            for(;i < population_size;i++)
             {
                 new_population.push_back(persons[i]);
             }
+            new_population.push_back(persons[0]);
+
+            // Select only the best ones
             std::sort(new_population.begin(), new_population.end(), Person::compare_by_phenotype);
-            for(i = new_population.size() - 1; i >= g->no_nodes; i--)
+            for(i = new_population.size() - 1; i >= population_size; i--)
             {
                 delete[] new_population[i]->genotype;
                 delete new_population[i];
@@ -140,7 +102,8 @@ void Island::start(Graph* g, const size_t id) {
         }
         if(without_new_best == NUM_OF_GENERATIONS_WITHOUT_NEW_BEST)
             break;
-        // MULTI-ISLAND CROSSING HERE
+
+        // ISLAND MIGRATION HERE
 
     }
 
@@ -148,9 +111,10 @@ void Island::start(Graph* g, const size_t id) {
 }
 
 
-Island::Island(std::vector<Person *> ps, Graph* g) {
+Island::Island(std::vector<Person *> ps, Graph* g, size_t size) {
     persons = std::move(ps);
     rd = new Random_Device(g->no_nodes);
+    population_size = size;
 }
 
 
@@ -233,3 +197,76 @@ std::pair<Person*, Person*> Island::pmx_crossing(size_t i, size_t j, uint64_t** 
     return {kid1, kid2};
 }
 
+std::pair<Person *, Person *> Island::ox_crossing(size_t i, size_t j, uint64_t **dist_matrix, size_t n) {
+    // Choose two random split points
+    auto sp = rd->get_random_points();
+
+    auto* genotype_1 = new size_t[n];
+    auto* genotype_2 = new size_t[n];
+    std::unordered_set<size_t> section_1;
+    std::unordered_set<size_t> section_2;
+
+    for(size_t it = sp.first; it <= sp.second; it++) {
+        genotype_1[it] = persons[i]->genotype[it];
+        genotype_2[it] = persons[j]->genotype[it];
+        section_1.insert(persons[i]->genotype[it]);
+        section_2.insert(persons[j]->genotype[it]);
+    }
+
+    // Complete kid 1
+    size_t fit_idx = sp.second + 1;
+    size_t idx = sp.second + 1;
+    while (fit_idx != sp.first)
+    {
+        size_t val = persons[j]->genotype[idx];
+        // Not in gray zone
+        if(section_1.find(val) == section_1.end())
+        {
+            genotype_1[fit_idx] = val;
+            if(fit_idx + 1 == n)
+                fit_idx = 0;
+            else
+                fit_idx++;
+        }
+        if(idx + 1 == n)
+            idx = 0;
+        else
+            idx++;
+    }
+
+    // Complete kid 2
+    fit_idx = sp.second + 1;
+    idx = sp.second + 1;
+    while (fit_idx != sp.first)
+    {
+        size_t val = persons[i]->genotype[idx];
+        // Not in gray zone
+        if(section_2.find(val) == section_2.end())
+        {
+            genotype_2[fit_idx] = val;
+            if(fit_idx + 1 == n)
+                fit_idx = 0;
+            else
+                fit_idx++;
+        }
+        if(idx + 1 == n)
+            idx = 0;
+        else
+            idx++;
+    }
+
+    uint64_t phenotype_1 = 0;
+    uint64_t phenotype_2 = 0;
+    // Calculate new phenotypes
+    for(size_t it = 1; it < n; it++)
+    {
+        phenotype_1 += dist_matrix[genotype_1[it-1]][genotype_1[it]];
+        phenotype_2 += dist_matrix[genotype_2[it-1]][genotype_2[it]];
+    }
+    phenotype_1 += dist_matrix[genotype_1[0]][genotype_1[n - 1]];
+    phenotype_2 += dist_matrix[genotype_2[0]][genotype_2[n - 1]];
+
+    auto* kid1 = new Person(genotype_1, phenotype_1);
+    auto* kid2 = new Person(genotype_2, phenotype_2);
+    return {kid1, kid2};
+}
