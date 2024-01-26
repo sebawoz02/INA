@@ -74,14 +74,14 @@ int main(int argc, char* argv[]) {
 
         // Visualize
         const char *graphviz_command =
-                "neato -Tpng /home/sebastian/CLionProjects/INA/AM/l1/graph.dot -o /home/sebastian/CLionProjects/INA/AM/l1/graph.png";
+                "neato -Tpng /home/sebawoz02/CLionProjects/INA/AM/l1/graph.dot -o /home/sebawoz02/CLionProjects/INA/AM/l1/graph.png";
 
         auto *v = new Visualizer(mst_root);
         uint64_t total_cost;
         if (visualize_type == nullptr || strcmp(visualize_type, "MST") == 0) {
             timer->start("Creating visualization of MST");
             total_cost = v->visualize_mst();
-            cout << "\nMSP total weight: " << total_cost << endl;
+            cout << "\nMST total weight: " << total_cost << endl;
             if (visualize) {
                 int ret = system(graphviz_command);
                 if (ret != 0)
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
         mt19937 rng(rd());
         const size_t no_nodes = g->no_nodes;
         fstream file;
-        file.open("/home/sebastian/CLionProjects/INA/AM/l1/am_l1.txt");
+        file.open("/home/sebawoz02/CLionProjects/INA/AM/l1/am_l1.txt");
         for(size_t i = 0; i < no_groups; i++)
         {
             for(size_t ii = 0; ii < reps; ii++){

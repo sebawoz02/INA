@@ -6,7 +6,7 @@ int yylex(void);
 %s IGNORE
 %%
 <INITIAL>{
-    ^#(.|\\\n)*\n       { BEGIN(IGNORE); return ERROR; }
+    ^#(.|\\\n)*\n       { BEGIN(IGNORE); yyless(0);}
     [[:blank:]]+        ;
     \\\n                ;
     [+\-*/\^\(\)]|\n    { return *yytext; }

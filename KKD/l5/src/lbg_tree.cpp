@@ -111,8 +111,7 @@ void LBG_tree::linde_buzo_gray(const std::vector<Pixel>& pixels, Node* node)
 
     compute_centroid(node->left, left_pixels);
     compute_centroid(node->right, right_pixels);
-    // Repeat if it's the same color as it was before,
-    // one of the vectors was empty
+    // Repeat if it's not the same color as it was before.
   } while(!(node->left->pixel == prev_left_pixel) ||
           !(node->right->pixel == prev_right_pixel));
 

@@ -63,7 +63,7 @@ def get_differences(sequence, quant_dict=None, quant_val=None):
         x_prev = quant_val[quant_dict[x_prev]]
     result = [x_prev]
     for xn in sequence[1:]:
-        d = xn - x_prev
+        d = min(255, max(-255, xn - x_prev))
         if quant_dict is not None:
             d = quant_val[quant_dict[d]]
         result.append(d)

@@ -33,9 +33,8 @@ def t_NUMBER(t):
     return t
 
 # Ignored characters
-t_ignore = ' \t'
 t_ignore_slash = r'\\\n'
-t_ignore_comment =  '^\#(.|\\\n)*\n'
+t_ignore_comment =  '^\#(.|\\\n)'
     
 def t_error(t):
     global parser_error
@@ -167,6 +166,7 @@ def p_expression_op(t):
 def p_expression_uminus(t):
     'expression : MINUS expression %prec UMINUS'
     t[0] = P - t[2]%P
+    rpn.append("~")
 
 def p_expression_group(t):
     'expression : LPAREN expression RPAREN'
@@ -175,7 +175,7 @@ def p_expression_group(t):
 def p_expression_number(t):
     'expression : NUMBER'
     t[0] = t[1]%P
-    rpn.append(str(int(t[1])%P))
+    rpn.append(str(t[0]))
 
 def p_expression_name(t):
     'expression : NAME'
@@ -186,7 +186,6 @@ def p_expression_name(t):
     except LookupError:
         rpn.clear()
         error = 1
-        print("Niezdefiniowana zmienna: '%s'" % t[1])
         t[0] = 0
 
 def p_expression2_name(t):
@@ -231,6 +230,7 @@ def p_expression2_group(t):
 def p_expression2_uminus(t):
     'expression2 : MINUS expression2 %prec UMINUS'
     t[0] = (P-1) - t[2]%(P-1)
+    rpn.append("~")
 
 def p_expression2_number(t):
     'expression2 : NUMBER'
@@ -249,7 +249,7 @@ while True:
         s = ""
         while True:
             s += input()
-            if s[-1] != '\\':
+            if len(s) > 0 and s[-1] != '\\':
                 break
             s += '\n'
     except EOFError:

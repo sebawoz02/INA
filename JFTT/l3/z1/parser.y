@@ -66,13 +66,16 @@ int divide(int a, int b, int p){
 int power(unsigned long long int a, unsigned long long int b){
 	long long result = 1;
     a = a % P;
-	b = b % P;
+	if(b < 0){
+        b = (P-1) + b;
+	}
+    b = b % P;
     while (b > 0) {
         if (b % 2 == 1)
             result = mul(result, a, P);
 
         a = (a * a) % P;
-    	b >>= 1;
+    	b = b / 2;
     }
 
     return result;
@@ -95,6 +98,7 @@ void concat(char** buffer, char* a){
 %}
 
 %token NUM
+%token COMM
 %token ERROR
 %token '('
 %token ')'
@@ -128,8 +132,8 @@ line:
 exp:
 	ERROR				{ 
 							err = 1;
-							printf("Błąd składni\n");
-						}
+
+						}					
 |	NUM					{ $$ = $1%P; char num[9]; snprintf(num, 10, "%d ", $$); concat(&buffer, num);}
 |	exp '+' exp 		{ $$ = add($1, $3, P); concat(&buffer, "+ ");}
 |	exp '-' exp 		{ $$ = sub($1, $3, P); concat(&buffer, "- ");}
@@ -146,12 +150,8 @@ exp:
 						}
 |	exp '^' exp2		{ $$ = power($1, $3); concat(&buffer, "^ ");}
 |	'-' exp	%prec NEG 	{ 
-							$$ = P - $2%P ;
-							char num[9];
-							snprintf(num, 10, "%d ", $2);
-							*(buffer+strlen(buffer)-strlen(num)) = '\0';
-							snprintf(num, 10, "%d ", $$);
-							concat(&buffer, num);
+							$$ = (P - $2)%P ;
+							concat(&buffer, "~ ");
 						}
 |   '(' exp ')'			{ $$ = $2; }
 ;
@@ -172,12 +172,8 @@ exp2:
 							}
 						}
 |   '-' exp2 %prec NEG 	{ 
-							$$ = (P-1) - $2%(P-1) ;
-							char num[9];
-							snprintf(num, 10, "%d ", $2);
-							*(buffer+strlen(buffer)-strlen(num)) = '\0';
-							snprintf(num, 10, "%d ", $$);
-							concat(&buffer, num);
+							$$ = ((P-1) - $2)%(P-1) ;
+							concat(&buffer, "~ ");
 						}
 |	'(' exp2 ')'			{ $$ = $2; }
 ;

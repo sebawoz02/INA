@@ -9,7 +9,7 @@ import (
 
 type Monitor struct {
 	state []string
-	cond *sync.Cond
+	cond []*sync.Cond
 	mmutex *sync.Mutex
 	eating_list []string
 }
@@ -22,14 +22,17 @@ const (
 
 func monitor_init(n int) *Monitor {
 	state := make([]string, n)
+	var cond []*sync.Cond
+	mut := sync.Mutex{}
 	for i := range state {
 		state[i] = Thinking
+		cond = append(cond, sync.NewCond(&mut))
 	}
-	mut := sync.Mutex{}
+
 	monitor := &Monitor{
 		state: state,
 		mmutex: &mut,
-		cond: sync.NewCond(&mut),
+		cond: cond,
 	}
 	return monitor;
 }
@@ -42,7 +45,7 @@ func (m *Monitor) pick_Up_Fork(id int) {
 
 	m.test(id)
 	if m.state[id] != Eating {
-		m.cond.Wait()
+		m.cond[id].Wait()
 	}
 }
 
@@ -61,7 +64,7 @@ func (m *Monitor) test(id int) {
 	   m.state[(id+1)%len(m.state)] != Eating{
 		m.state[id] = Eating
 		m.add_To_Eating_List(id)
-		m.cond.Signal()
+		m.cond[id].Signal()
 	}
 }
 

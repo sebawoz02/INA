@@ -24,7 +24,7 @@ int pop(){
     if(top == NULL)
     {
         empty_stack_err = true;
-        return -1;
+        return 0;
     }
     int val = top->val;
     Stack* prev = top;
@@ -168,6 +168,10 @@ int pop(){
     if (!err){
         int result = pop();
         if (top != NULL){
+            printf("Za mala liczba operatorow\n");
+        }
+        else if(empty_stack_err)
+        {
             printf("Za mala liczba operatorow\n");
         }
         else {

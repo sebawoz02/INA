@@ -3,7 +3,6 @@
 #include <random>
 #include <stack>
 #include <vector>
-#include <assert.h>
 
 #include <local_search.h>
 #include <DataParser.h>

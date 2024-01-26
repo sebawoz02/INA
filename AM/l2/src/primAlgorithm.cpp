@@ -64,6 +64,6 @@ std::vector<TreeNode*> prim_find_MST(const Graph* const graph)
     // Add parents to children for task purpose
     mst[i]->addEdge(mst[i]->parent);
   }
-  std::cout << "MST: " << tree_cost << std::endl;
+  // std::cout << "MST: " << tree_cost << std::endl;
   return mst;
 }

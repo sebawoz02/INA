@@ -7,47 +7,61 @@ import (
 	"time"
 )
 
+type ALSignal struct{
+	action string 	// add or remove
+	id string
+}
+
 type AttendanceList struct{
 	list []string
-	mutex sync.Mutex
+	request_chan chan ALSignal
 }
 
 func AttendanceListInit() *AttendanceList {
 	a := AttendanceList{
-		mutex: sync.Mutex{},
+		request_chan: make(chan ALSignal),
 	}
+	go AttendanceListLoop(&a);
 	return &a
 }
 
+func AttendanceListLoop(a *AttendanceList) {
+	for{
+		req := <-a.request_chan
+		switch req.action {
+		case "add":
+			a.list = append(a.list, req.id)
+			fmt.Println(a.list) 
+		case "remove":	
+			for i := 0; i < len(a.list); i++{
+				if a.list[i] == req.id{
+					a.list = append(a.list[:i], a.list[i+1:]...)
+					break
+				}
+			}
+			fmt.Println(a.list)
+		}
+	}
+}
+
 func (a *AttendanceList) Add(id string){
-	a.mutex.Lock()
-	a.list = append(a.list, id)
-	fmt.Println(a.list)
-	a.mutex.Unlock()
+	a.request_chan <- ALSignal{"add", id}
 }
 
 func (a *AttendanceList) Remove(id string){
-	a.mutex.Lock()
-	for i := 0; i < len(a.list); i++{
-		if a.list[i] == id{
-			a.list = append(a.list[:i], a.list[i+1:]...)
-			break
-		}
-	}
-	fmt.Println(a.list)
-	a.mutex.Unlock()
+	a.request_chan <- ALSignal{"remove", id}
 }
 
 var (
 	rwLock sync.RWMutex		// Allows to RLock only for writers (used by readers) 
 							// or Lock for everyone (used by writers)
 	n 	   int
-	attendance_list AttendanceList
+	attendance_list *AttendanceList
 )
 
 func main() {
 	n = 6
-	attendance_list = AttendanceList{}
+	attendance_list = AttendanceListInit()
 
 	// Start readers and writers
 	for i := 0; i < n; i++ {

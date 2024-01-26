@@ -84,15 +84,14 @@ void decode(FILE* input, FILE* output)
 
     // ------------- MAIN LOOP ----------------
 
-    while(!eof){
+    while(true){
+        uint64_t cumulative_sum = 0;
         for(uint16_t sym = 0; sym < NO_SYMBOLS; sym++){
             uint64_t dist = u - l;
-            uint64_t cumulative_sum = 0;
-            for(size_t i = 0; i < sym; i++)
-                cumulative_sum += occur[i];
+            cumulative_sum += occur[sym];
 
-            uint64_t new_u = l + (uint64_t) roundl(dist * ((double)(cumulative_sum + occur[sym])/input_size));
-            uint64_t new_l = l + (uint64_t) roundl(dist * ((double)cumulative_sum/input_size));
+            uint64_t new_u = l + (uint64_t) roundl(dist * ((double)(cumulative_sum)/input_size));
+            uint64_t new_l = l + (uint64_t) roundl(dist * ((double)(cumulative_sum - occur[sym])/input_size));
 
             if(new_l <= z && z < new_u){
                 decoded_sym = sym;
@@ -104,6 +103,9 @@ void decode(FILE* input, FILE* output)
                 break;
             }
         }
+
+        if(eof)
+            break;
 
         while(true){
             if(u < half){

@@ -1,4 +1,5 @@
 #include <local_search.h>
+#include <cmath>
 
 static int32_t invert(const size_t* tsp, size_t i, size_t j,
                       uint64_t** dist_matrix, size_t max_n);
@@ -43,14 +44,14 @@ static int32_t invert(const size_t* tsp, const size_t i, const size_t j,
   return static_cast<int32_t>(plus) - static_cast<int32_t>(minus);
 }
 
-std::pair<uint64_t, size_t> local_search(size_t* tsp, const Graph& g,
+uint64_t local_search(size_t* tsp, const Graph& g,
                                          uint64_t init_cost)
 {
   size_t n = g.no_nodes;
   uint64_t cost = init_cost;
   size_t steps = 0;
 
-  while(true) {
+  while(steps < 2*sqrt(n)) {
     uint64_t candidate = UINT64_MAX;
     size_t best_i = 0;
     size_t best_j = 0;
@@ -78,5 +79,5 @@ std::pair<uint64_t, size_t> local_search(size_t* tsp, const Graph& g,
       break;
     }
   }
-  return std::make_pair(cost, steps);
+  return cost;
 }

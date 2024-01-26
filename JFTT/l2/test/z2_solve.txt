@@ -8,4 +8,5 @@
   ]]>
   
   <!-- invalid -- comment -->
+  <element> to jest "tekst " <\element>
 </root>

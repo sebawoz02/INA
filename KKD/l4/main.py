@@ -28,16 +28,15 @@ def encode(pixels, image_width, image_height, mode):
 def get_entropy(pixels, type):
     result = {}
     size = 0
+    for i in range(256):
+        result[i] = 0
     if type == 'all':
         for pixel in pixels:
-            if pixel.__repr__() in result.keys():
-                result[pixel.__repr__()] += 1
-            else:
-                result[pixel.__repr__()] = 1
-            size += 1
+            result[pixel.red] += 1
+            result[pixel.green] += 1
+            result[pixel.blue] += 1
+            size += 3
     else:
-        for i in range(256):
-            result[i] = 0
         for pixel in pixels:
             result[getattr(pixel, type)] += 1
             size += 1

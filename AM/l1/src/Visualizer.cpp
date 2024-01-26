@@ -12,7 +12,7 @@ uint64_t Visualizer::visualize_mst() {
     uint64_t total_cost = 0;
 
     std::ofstream dotFile;
-    dotFile.open("/home/sebastian/CLionProjects/INA/AM/l1/graph.dot");
+    dotFile.open("/home/sebawoz02/CLionProjects/INA/AM/l1/graph.dot");
     if(!dotFile.is_open())
         std::cerr << "Visualizer failed to open .dot file" << std::endl;
 
@@ -43,7 +43,7 @@ uint64_t Visualizer::visualize_tsp(uint32_t** dist_matrix) {
     uint64_t total_cost = 0;
 
     std::ofstream dotFile;
-    dotFile.open("/home/sebastian/CLionProjects/INA/AM/l1/graph.dot");
+    dotFile.open("/home/sebawoz02/CLionProjects/INA/AM/l1/graph.dot");
     if(!dotFile.is_open())
         std::cerr << "Visualizer failed to open .dot file" << std::endl;
 
