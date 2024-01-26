@@ -10,7 +10,7 @@ if __name__ == "__main__":
         bitstring_1 = ''.join([bin(byte)[2:].zfill(8) for byte in f1.read()])
         bitstring_2 = ''.join([bin(byte)[2:].zfill(8) for byte in f2.read()])
 
-    for i in range(min(len(bitstring_1), len(bitstring_2))):
+    for i in range(0, min(len(bitstring_1), len(bitstring_2)), 4):
         if bitstring_1[i:(i+4)] != bitstring_2[i:(i+4)]:
             counter += 1
     print("Liczba nieidentycznych 4-bitowych bloków:", counter)
