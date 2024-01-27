@@ -12,7 +12,6 @@ two_errors_count = 0
 def decode_byte(byte):
     global two_errors_count
 
-    byte = byte[::-1]
     coded = [int(byte[i]) for i in range(0, len(byte) - 1)]
     parity = sum(coded) % 2
     old_parity = int(byte[7])
@@ -27,15 +26,22 @@ def decode_byte(byte):
 
     if parity != old_parity:
         if syndrome != 0:
+            """
+            001 - 0
+            010 - 1
+            101 - 2
+            011 - 3
+            111 - 4
+            110 - 5
+            100 - 6
+            """
             indices = [0, 0, 1, 3, 6, 2, 5, 4]
             idx = indices[syndrome]
             coded[idx] = (coded[idx] + 1) % 2
-        else:
-            two_errors_count += 1
     elif syndrome != 0:
         two_errors_count += 1
-        return byte[4:]
-    return str(coded[0]) + str((coded[1] - coded[0] + 2) % 2) + str(coded[5]) + str(coded[6])
+        return "0000"
+    return str(coded[0]) + str((coded[1] - coded[0]) % 2) + str(coded[5]) + str(coded[6])
 
 
 def decode_file(f_in, f_out):

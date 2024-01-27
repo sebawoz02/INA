@@ -20,7 +20,7 @@ def hamming_encode(bits):
         coded[r] %= 2
     parity = sum(coded) % 2
     coded.append(parity)
-    return ''.join(map(str, coded[::-1]))
+    return ''.join(map(str, coded))
 
 
 def encode(f_in, f_out):
