@@ -8,7 +8,7 @@ Informatyka algorytmiczna PWr 2021-2024
 | AM - Algorytmy metaheurystyczne                      | 5.0                  |
 | AOD - Algorytmy optymalizacji dyskretnej             | 5.0                  |
 | BDSI - Bazy Danych i systemy informacyjne            | 5.5                  |
-| JFTT - Języki formalne i techniki translacji         | In progress          |
+| JFTT - Języki formalne i techniki translacji         | 4.5.                 |
 | KKD - Kodowanie i kompresja danych                   | 5.0                  |
 | MPIS - Metody probabilistyczne i statystyka          | 5.0                  |
 | ON - Obliczenia naukowe                              | 4.5                  |
