@@ -13,7 +13,12 @@ Informatyka algorytmiczna PWr 2021-2024
 | MPIS - Metody probabilistyczne i statystyka          | 5.0                  |
 | ON - Obliczenia naukowe                              | 4.5                  |
 | PW - Programowanie współbieżne                       | 4.0                  |
+| JPP - Języki i paradygmaty programowania             | In progress          |
+| WZA - Wybrane Zagadnienia Algebry                    | In progress          |
+| PL - Programowanie w Logice                          | In progress          |
 | ----pozostałe----                                    | n/a                  |
+| Systemy wbudowane                                    | In progress          |
+| Bezpieczeństwo komputerowe                           | In progress          |
 | Aplikacje mobilne                                    | 4.0                  |
 | Technologie programowania                            | 5.5                  |
 | Technologie sieciowe                                 | 5.0                  |
