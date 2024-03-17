@@ -28,5 +28,8 @@ z6_test: modules/z1.c
 	gcc -fPIC -shared -o z6.so modules/z1.c
 # python3 z6_test.py
 
+z7_test: modules/z7.c z7_test.c modules/z3.py
+	gcc -o z7_test.out z7_test.c modules/z7.c -I/usr/include/python3.10 -lpython3.10
+
 clean:
 	@rm -rf *.out *.ali *.o b~* *.so
