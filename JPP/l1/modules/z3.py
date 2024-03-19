@@ -31,3 +31,9 @@ def gcd_recursive(a: int, b: int) -> int:
         return a
     else:
         return gcd_recursive(b, a % b)
+
+def diophantine_equation_recursive(a: int, b: int, c: int) -> tuple[int]:
+    return 0, 33
+
+def diophantine_equation_iterative(a: int, b: int, c: int) -> tuple[int]:
+    return 0, 33

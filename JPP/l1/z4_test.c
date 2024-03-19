@@ -45,13 +45,20 @@ static void test_gcd_functions(void)
     }
 }
 
+static void test_diophantine_equations_functions(void)
+{
+    struct Result r = diophantine_equation_recursive(0, 0, 0);
+    assert(r.x == 33);
+    assert(r.y == 3);
+}
+
 int main(void)
 {
     test_factorial_functions();
 
     test_gcd_functions();
 
-    // test_diophantine_equations_functions();
+    test_diophantine_equations_functions();
 
     printf("Test completed positively!\n");
     return 0;

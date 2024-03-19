@@ -36,3 +36,13 @@ uint64_t gcd_recursive(const uint64_t a, const uint64_t b)
     else
         return gcd_recursive(b, a % b);
 }
+
+struct Result diophantine_equation_iterative(const int64_t a, const int64_t b, const int64_t c)
+{
+    return (struct Result){.x = 3, .y = 33};
+}
+
+struct Result diophantine_equation_recursive(const int64_t a, const int64_t b, const int64_t c)
+{
+    return (struct Result){.x = 3, .y = 33};
+}  

@@ -45,6 +45,13 @@ static void test_gcd_functions(void)
     }
 }
 
+static void test_diophantine_equations_functions(void)
+{
+    struct Result r = diophantine_equation_iterative(0, 0, 0);
+    assert(r.x == 0);
+    assert(r.y == 33);
+}
+
 int main(void)
 {
     z7_module_init();
@@ -53,7 +60,7 @@ int main(void)
 
     test_gcd_functions();
 
-    // test_diophantine_equations_functions();
+    test_diophantine_equations_functions();
 
     z7_module_destroy();
 
