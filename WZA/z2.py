@@ -10,14 +10,12 @@ class Polynomial:
     def __str__(self):
         str_rep = ""
         for i in range(self.degree + 1):
-            if self.coefficients[self.degree - i] < 0:
-                sign = "- "
-            elif i > 0:
-                sign = "+ "
-            else:
-                sign = ""
-            str_rep += sign + f"{abs(self.coefficients[self.degree - i])}x^{self.degree - i} "
-        return str_rep[:-4]
+            coef = self.coefficients[self.degree - i]
+            if coef == 0 and i != 0:
+                continue
+            sign = "- " if coef < 0 else "+ " if i > 0 else ""
+            str_rep += f"{sign}{abs(coef)}" + (f"x^{self.degree - i} " if i < self.degree else " ")
+        return str_rep
 
     def __add__(self, other):
         combined_coefficients = [
@@ -77,7 +75,9 @@ class Polynomial:
 
     @staticmethod
     def gcd(p, q):
-        pass
+        while q.degree > 0 or q.coefficients[0] != 0:
+            p, q = q, p % q
+        return p
 
     @staticmethod
     def lcm(p, q):
@@ -85,13 +85,16 @@ class Polynomial:
 
 
 # test
-p1 = Polynomial([-10, -9, 2])
-p2 = Polynomial([1, 3])
+p1 = Polynomial([1, 0, 1])  # 1 + x^2
+p2 = Polynomial([1, 2, 1])     # 1 + 2x + x^2
 
 print(p1)
 print(p2)
 
 quotient, remainder = p1 / p2
 
-print(quotient)
-print(remainder)
+print("quotient:", quotient)
+print("remainder:", remainder)
+
+print("c:", Polynomial.gcd(p1, p2))
+print("d:", Polynomial.lcm(p1, p2))
