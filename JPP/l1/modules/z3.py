@@ -32,8 +32,56 @@ def gcd_recursive(a: int, b: int) -> int:
     else:
         return gcd_recursive(b, a % b)
 
-def diophantine_equation_recursive(a: int, b: int, c: int) -> tuple[int]:
-    return 0, 33
+def extended_gcd_iterative(A: int, B: int):
+    X0, X1, Y0, Y1 = 1, 0, 0, 1
+    A_copy, B_copy = A, B
+    
+    while B_copy != 0:
+        Q = A_copy // B_copy
+        R = A_copy % B_copy
+        A_copy = B_copy
+        B_copy = R
 
-def diophantine_equation_iterative(a: int, b: int, c: int) -> tuple[int]:
-    return 0, 33
+        nX = X0 - Q * X1
+        nY = Y0 - Q * Y1
+
+        X0, Y0, X1, Y1 = X1, Y1, nX, nY
+
+    X = X0
+    Y = Y0
+    return A_copy, X, Y
+
+def extended_gcd_recursive(A: int, B: int):
+    def extended_gcd_recursive_helper(A, B, X0, Y0, X1, Y1):
+        if B == 0:
+            return A, X0, Y0
+        else:
+            Q = A // B
+            R = A % B
+            nX = X0 - Q * X1
+            nY = Y0 - Q * Y1
+            return extended_gcd_recursive_helper(B, R, X1, Y1, nX, nY)
+
+    return extended_gcd_recursive_helper(A, B, 1, 0, 0, 1)
+
+def diophantine_equation_iterative(A: int, B: int, C: int) -> tuple[int]:
+    Gcd, x, y = extended_gcd_iterative(A, B)
+    
+    if C % Gcd != 0:
+        # No solution exists
+        return 0, 0
+    
+    ResX = x * (C // Gcd)
+    ResY = y * (C // Gcd)
+    return ResX, ResY
+
+def diophantine_equation_recursive(A: int, B: int, C: int) -> tuple[int]:
+    Gcd, x, y = extended_gcd_recursive(A, B)
+    
+    if C % Gcd != 0:
+        # No solution exists
+        return 0, 0
+    
+    ResX = x * (C // Gcd)
+    ResY = y * (C // Gcd)
+    return ResX, ResY

@@ -13,8 +13,8 @@ static void test_factorial_functions(void)
     }
 
     {
-        const uint8_t n = 0;
-        const uint64_t result = 1;
+        const uint8_t n = 20;
+        const uint64_t result = 2432902008176640000;
         assert(factorial_recursive(n) == result);
 
         assert(factorial_iterative(n) == result);
@@ -44,19 +44,25 @@ static void test_gcd_functions(void)
     }
 }
 
-/*
+
 static void test_diophantine_equations_functions(void)
 {
     {
         int64_t a = 96, b = -12, c = 36;
-        diophantine_equation_iterative(a, b, c);
+        struct Result r = diophantine_equation_iterative(a, b, c);
+        assert(r.x == 0 && r.y == -3);
+        r = diophantine_equation_recursive(a, b, c);
+        assert(r.x == 0 && r.y == -3);
     }
     {
         int64_t a = 33, b = 12, c = 12;
-        diophantine_equation_iterative(a, b, c);
+        struct Result r = diophantine_equation_iterative(a, b, c);
+        assert(r.x == -4 && r.y == 12);
+        r = diophantine_equation_recursive(a, b, c);
+        assert(r.x == -4 && r.y == 12);
     }
 }
-*/
+
 
 int main(void)
 {
@@ -64,7 +70,7 @@ int main(void)
 
     test_gcd_functions();
 
-    // test_diophantine_equations_functions();
+    test_diophantine_equations_functions();
 
     printf("Test completed positively!\n");
     return 0;

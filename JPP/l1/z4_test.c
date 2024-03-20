@@ -47,9 +47,20 @@ static void test_gcd_functions(void)
 
 static void test_diophantine_equations_functions(void)
 {
-    struct Result r = diophantine_equation_recursive(0, 0, 0);
-    assert(r.x == 33);
-    assert(r.y == 3);
+    {
+        const int64_t a = 3, b = 25, c = 1;
+        const int64_t x = -8, y = 1;
+        {
+            struct Result r = diophantine_equation_recursive(a, b, c);
+            assert(r.x == x);
+            assert(r.y == y);
+        }
+        {
+            struct Result r = diophantine_equation_iterative(a, b, c);
+            assert(r.x == x);
+            assert(r.y == y);
+        }
+    }
 }
 
 int main(void)
