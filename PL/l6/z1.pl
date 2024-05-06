@@ -1,0 +1,1 @@
+% Plik został przypadkowo usunięty :C
